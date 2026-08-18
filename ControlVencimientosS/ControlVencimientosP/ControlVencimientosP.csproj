@@ -28,11 +28,11 @@
        existe rompe el build con CS0246.
        ============================================================ -->
   <ItemGroup>
-    <!-- <Using Include="ControlVencimientosP.Domain" /> -->
-    <!-- <Using Include="ControlVencimientosP.Data" /> -->
-    <!-- <Using Include="ControlVencimientosP.Services" /> -->
+    <Using Include="ControlVencimientosP.Domain" />
+    <Using Include="ControlVencimientosP.Data" />
+    <Using Include="ControlVencimientosP.Services" />
     <!-- <Using Include="ControlVencimientosP.ViewModels" /> -->
-    <!-- <Using Include="ControlVencimientosP.Tenancy" /> -->
+    <Using Include="ControlVencimientosP.Tenancy" />
   </ItemGroup>
 
   <ItemGroup>
