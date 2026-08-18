@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ControlVencimientosP")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bc17831d64f06f5a284998d3d74375a63280fa30")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8e4075070890f550a7d72a618f77c7476df0bd2")]
 [assembly: System.Reflection.AssemblyProductAttribute("ControlVencimientosP")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ControlVencimientosP")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
