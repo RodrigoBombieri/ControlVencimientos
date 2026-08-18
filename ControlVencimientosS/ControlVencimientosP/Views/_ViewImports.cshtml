@@ -1,3 +1,9 @@
-﻿@using ControlVencimientosP
-@using ControlVencimientosP.Models
+@using ControlVencimientosP
+@*
+   Agregá estos @using cuando las carpetas tengan su primera clase.
+   Un @using de un namespace vacío rompe el build con CS0246.
+
+   @using ControlVencimientosP.ViewModels
+   @using ControlVencimientosP.Domain
+*@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

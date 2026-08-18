@@ -1,0 +1,11 @@
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.csproj.AssemblyReference.cache
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.AssemblyInfoInputs.cache
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.AssemblyInfo.cs
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.csproj.CoreCompileInputs.cache
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.RazorAssemblyInfo.cache
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.RazorAssemblyInfo.cs
+C:\Users\Rodrigo\Escritorio\Repositorio Git\ControlVencimientos\ControlVencimientosS\ControlVencimientosP\obj\Debug\net10.0\ControlVencimientosP.sourcelink.json

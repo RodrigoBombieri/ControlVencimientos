@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ControlVencimientosP/ControlVencimientosP.csproj" />
+  <Project Path="tests/tests.csproj" Id="7ed8df54-4451-4d0c-a456-a8cfd332d9bd" />
 </Solution>

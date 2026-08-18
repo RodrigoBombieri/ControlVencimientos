@@ -6,4 +6,53 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Domain\" />
+    <Folder Include="Data\" />
+    <Folder Include="Data\Configurations\" />
+    <Folder Include="Data\Migrations\" />
+    <Folder Include="Jobs\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Services\" />
+    <Folder Include="Tenancy\" />
+  </ItemGroup>
+
+  <!-- ============================================================
+       GLOBAL USINGS
+       Esto es lo más parecido a "referenciar carpetas" que existe en .NET:
+       evita tener que escribir `using ControlVencimientosP.Domain;` arriba
+       de cada archivo. No es obligatorio, es comodidad.
+
+       IMPORTANTE: descomentá cada línea SOLO después de crear la primera
+       clase en esa carpeta. Un global using de un namespace que todavía no
+       existe rompe el build con CS0246.
+       ============================================================ -->
+  <ItemGroup>
+    <!-- <Using Include="ControlVencimientosP.Domain" /> -->
+    <!-- <Using Include="ControlVencimientosP.Data" /> -->
+    <!-- <Using Include="ControlVencimientosP.Services" /> -->
+    <!-- <Using Include="ControlVencimientosP.ViewModels" /> -->
+    <!-- <Using Include="ControlVencimientosP.Tenancy" /> -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.24" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.24" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="QuestPDF" Version="2026.7.3" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+  </ItemGroup>
+
 </Project>
