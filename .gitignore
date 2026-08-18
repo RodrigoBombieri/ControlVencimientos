@@ -1,6 +1,26 @@
 ## Visual Studio / .NET Core / Razor Pages - .gitignore
 ## Generated for Visual Studio 2026 and .NET 10 Razor Pages project
 
+# ============================================================
+# Build results  <-- ESTO FALTABA: sin estas reglas se estaban
+# versionando bin/ y obj/ (566 de 656 archivos del repo).
+# ============================================================
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Ll]og/
+[Ll]ogs/
+*/publish/
+**/publish/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -12,10 +32,6 @@
 .vs/
 .vscode/
 .idea/
-
-# Build results
-*/publish/
-**/publish/
 
 # Rider
 .idea/
@@ -29,6 +45,7 @@ packages/
 # MSBuild generated files
 project.lock.json
 project.fragment.lock.json
+project.assets.json
 artifacts/
 
 # Backup & temporary files
@@ -57,6 +74,7 @@ coverage.*
 
 # User secrets and local configuration
 secrets.json
+appsettings.Development.json
 appsettings.*.Development.json
 appsettings.*.Local
 .env
@@ -95,9 +113,10 @@ Desktop.ini
 .publish
 /.cache
 
-# Ensure the solution file and source code are tracked
-!/*.sln
-!/*.slnx
-!/**/*.cs
-!/**/*.cshtml
-!/**/*.csproj
+# Carpeta de descarte del puente de Claude
+_to_delete/
+
+# NOTA: se quitaron las lineas "!/**/*.cs", "!/**/*.cshtml", etc.
+# Eran inutiles: git no puede re-incluir un archivo si su carpeta
+# padre esta excluida, y ningun patron de arriba excluia el codigo
+# fuente. Solo confundian al leer el archivo.
