@@ -50,6 +50,9 @@ builder.Services.ConfigureApplicationCookie(opciones =>
 
 var app = builder.Build();
 
+// Roles y primer administrador. Es idempotente: si ya existen, no hace nada.
+await SeedIdentidad.AplicarAsync(app.Services);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
