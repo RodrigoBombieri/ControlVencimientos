@@ -1,12 +1,25 @@
 using ControlVencimientosP.Data;
 using ControlVencimientosP.Domain;
 using ControlVencimientosP.Tenancy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(opciones =>
+{
+    // Exige sesion en TODA la app por defecto. Un controller nuevo queda
+    // protegido solo por existir; hay que marcarlo [AllowAnonymous] a
+    // proposito para abrirlo (como se hace con CuentaController). Es al
+    // reves de agregar [Authorize] uno por uno, que es facil de olvidar
+    // justo en el controller nuevo que faltaba proteger.
+    var exigirSesion = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    opciones.Filters.Add(new AuthorizeFilter(exigirSesion));
+});
 
 // ---------------------------------------------------------------------------
 // Multiempresa

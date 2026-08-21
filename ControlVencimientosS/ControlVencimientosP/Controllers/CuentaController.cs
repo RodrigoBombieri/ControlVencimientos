@@ -1,10 +1,15 @@
-﻿using ControlVencimientosP.Domain;
+using ControlVencimientosP.Domain;
 using ControlVencimientosP.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlVencimientosP.Controllers
 {
+    // Ahora que Program.cs exige sesion en toda la app por defecto, este
+    // controller necesita abrirse a proposito: sin este atributo, nadie
+    // podria llegar a la pantalla de login para loguearse.
+    [AllowAnonymous]
     public class CuentaController : Controller
     {
         private readonly SignInManager<Usuario> _signInManager;
