@@ -12,7 +12,6 @@
     <Folder Include="Data\Configurations\" />
     <Folder Include="Data\Migrations\" />
     <Folder Include="Jobs\" />
-    <Folder Include="ViewModels\" />
     <Folder Include="Services\" />
     <Folder Include="Tenancy\" />
   </ItemGroup>
@@ -31,7 +30,7 @@
     <Using Include="ControlVencimientosP.Domain" />
     <Using Include="ControlVencimientosP.Data" />
     <Using Include="ControlVencimientosP.Services" />
-    <!-- <Using Include="ControlVencimientosP.ViewModels" /> -->
+    <Using Include="ControlVencimientosP.ViewModels" /> 
     <Using Include="ControlVencimientosP.Tenancy" />
   </ItemGroup>
 
