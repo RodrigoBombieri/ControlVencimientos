@@ -1,8 +1,119 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ControlVencimientosP.Services.ResumenDashboard
+@using System.Globalization
+@{
+    ViewData["Title"] = "Inicio";
+
+    string Relativo(int dias) => dias switch
+    {
+        < 0 => $"hace {-dias} día{(-dias == 1 ? "" : "s")}",
+        0 => "vence hoy",
+        1 => "en 1 día",
+        _ => $"en {dias} días"
+    };
+
+    (string clase, string icono, string texto) InfoEstado(EstadoSemaforo estado) => estado switch
+    {
+        EstadoSemaforo.Vencido => ("cv-b-crit", "alert", "Vencido"),
+        EstadoSemaforo.PorVencer => ("cv-b-warn", "clock", "Por vencer"),
+        _ => ("cv-b-good", "check", "Vigente")
+    };
+
+    var fechaLarga = Model.Hoy.ToDateTime(TimeOnly.MinValue)
+        .ToString("dddd, d 'de' MMMM 'de' yyyy", CultureInfo.GetCultureInfo("es-AR"));
+    // Solo la primera letra: ToTitleCase pondría mayúscula en "De" también,
+    // que en español queda mal ("21 De Agosto De 2026").
+    fechaLarga = char.ToUpperInvariant(fechaLarga[0]) + fechaLarga[1..];
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@if (Model.Vencidos > 0)
+{
+    <div class="cv-alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /></svg>
+        <div class="cv-alert-text">
+            <b>@Model.Vencidos @(Model.Vencidos == 1 ? "vencimiento está vencido" : "vencimientos están vencidos").</b>
+            Revisalos antes de que se acumulen.
+        </div>
+    </div>
+}
+
+<h1 class="cv-page-title">Inicio</h1>
+<p class="cv-page-sub">
+    @fechaLarga ·
+    @(Model.TotalActivos == 0 ? "todavía no hay vencimientos cargados" : $"{Model.TotalActivos} {(Model.TotalActivos == 1 ? "vencimiento bajo control" : "vencimientos bajo control")}")
+</p>
+
+<div class="cv-tiles">
+    <div class="cv-tile cv-t-good">
+        <div class="cv-tile-head"><span class="cv-dot"></span><span class="cv-tile-label">Vigente</span></div>
+        <div class="cv-tile-value">@Model.Vigentes</div>
+    </div>
+    <div class="cv-tile cv-t-warn">
+        <div class="cv-tile-head"><span class="cv-dot"></span><span class="cv-tile-label">Por vencer</span></div>
+        <div class="cv-tile-value">@Model.PorVencer</div>
+    </div>
+    <div class="cv-tile cv-t-crit">
+        <div class="cv-tile-head"><span class="cv-dot"></span><span class="cv-tile-label">Vencido</span></div>
+        <div class="cv-tile-value">@Model.Vencidos</div>
+    </div>
+</div>
+
+<div class="cv-card">
+    <div class="cv-card-head">
+        <div>
+            <div class="cv-card-title">Próximos vencimientos</div>
+            <div class="cv-card-sub">Ordenados por fecha</div>
+        </div>
+    </div>
+
+    @if (Model.Proximos.Count == 0)
+    {
+        <div class="cv-empty">
+            Todavía no cargaste ningún vencimiento.
+        </div>
+    }
+    else
+    {
+        <table class="cv-table">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Vence</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Proximos)
+                {
+                    var (clase, icono, texto) = InfoEstado(item.Estado);
+                    <tr>
+                        <td>
+                            <div class="cv-item-name">@item.Nombre</div>
+                            <div class="cv-item-meta">@item.CategoriaNombre@(item.Codigo is null ? "" : $" · {item.Codigo}")</div>
+                        </td>
+                        <td>
+                            <div class="cv-date-main">@item.FechaVencimiento.ToString("dd/MM/yyyy")</div>
+                            <div class="cv-date-rel">@Relativo(item.DiasRestantes)</div>
+                        </td>
+                        <td>
+                            <span class="cv-badge @clase">
+                                @if (icono == "check")
+                                {
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                                }
+                                else if (icono == "clock")
+                                {
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                                }
+                                else
+                                {
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg>
+                                }
+                                @texto
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>

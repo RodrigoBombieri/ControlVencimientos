@@ -1,73 +1,121 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ControlVencimientosP</title>
+    <title>@ViewData["Title"] - Control de Vencimientos</title>
+    <script>
+        // Se corre antes de pintar para que no se vea un flash del tema
+        // equivocado al cargar. Si localStorage falla (modo privado, etc.)
+        // simplemente se queda con el tema del sistema operativo.
+        (function () {
+            try {
+                var guardado = localStorage.getItem('cv-theme');
+                if (guardado === 'dark' || guardado === 'light') {
+                    document.documentElement.setAttribute('data-theme', guardado);
+                }
+            } catch (e) { }
+        })();
+    </script>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ControlVencimientosP.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ControlVencimientosP</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    @* Todo lo demas ya exige sesion (Program.cs), asi que si llegamos
-                       hasta aca autenticado, siempre hay que poder salir. *@
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <ul class="navbar-nav">
-                            <li class="nav-item d-flex align-items-center me-2">
-                                <span class="nav-link text-dark">@User.Identity!.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Cuenta" asp-action="Logout" method="post">
-                                    <button type="submit" class="btn btn-link nav-link text-dark border-0">Salir</button>
-                                </form>
-                            </li>
-                        </ul>
-                    }
-                    else
-                    {
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Cuenta" asp-action="Login">Ingresar</a>
-                            </li>
-                        </ul>
-                    }
+@if (User.Identity?.IsAuthenticated == true)
+{
+    var nombre = User.Identity!.Name ?? "";
+    var iniciales = (nombre.Length >= 2 ? nombre[..2] : nombre).ToUpperInvariant();
+
+    <div class="cv-app">
+        <aside class="cv-sidebar">
+            <div class="cv-brand">
+                <div class="cv-brand-mark">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v6l4 2" /><circle cx="12" cy="12" r="9" /></svg>
+                </div>
+                <div class="cv-brand-name">Vencimientos</div>
+            </div>
+
+            <div class="cv-nav-label">Principal</div>
+            <a class="cv-nav-item is-active" asp-controller="Home" asp-action="Index">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>
+                Inicio
+            </a>
+            @* Todavia no existen estas pantallas: quedan visibles para anticipar
+               la navegacion final (coincide con el mockup) pero no llevan a
+               ningun lado hasta que se construyan. *@
+            <a class="cv-nav-item" href="#" title="Próximamente">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
+                Vencimientos
+            </a>
+            <a class="cv-nav-item" href="#" title="Próximamente">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+                Calendario
+            </a>
+
+            <div class="cv-nav-label">Gestión</div>
+            <a class="cv-nav-item" href="#" title="Próximamente">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6V4a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                Configuración
+            </a>
+
+            <div class="cv-sidebar-foot">
+                <div class="cv-user">
+                    <div class="cv-avatar">@iniciales</div>
+                    <div>
+                        <div class="cv-user-name" title="@nombre">@nombre</div>
+                        <form asp-controller="Cuenta" asp-action="Logout" method="post" class="cv-logout-form">
+                            <button type="submit" class="cv-logout-btn">Salir</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
+        </aside>
+
+        <main class="cv-main">
+            <header class="cv-topbar">
+                <div class="cv-search">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                    <input type="text" placeholder="Buscar por nombre, número o ubicación…" disabled title="Próximamente" />
+                </div>
+                <div class="cv-spacer"></div>
+                <button type="button" class="cv-icon-btn" id="cv-theme-toggle" title="Cambiar tema">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" /></svg>
+                </button>
+            </header>
+            <div class="cv-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+}
+else
+{
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
+}
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ControlVencimientosP - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+    (function () {
+        var boton = document.getElementById('cv-theme-toggle');
+        if (!boton) return;
+        boton.addEventListener('click', function () {
+            var actual = document.documentElement.getAttribute('data-theme');
+            var esOscuro = actual === 'dark' || (!actual && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            var nuevo = esOscuro ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', nuevo);
+            try { localStorage.setItem('cv-theme', nuevo); } catch (e) { }
+        });
+    })();
+</script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

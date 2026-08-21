@@ -1,0 +1,245 @@
+/* ============================================================
+   Control de Vencimientos — hoja de estilos de la aplicacion real.
+   Porta el diseño del mockup aprobado (mockup-control-vencimientos.html).
+
+   Todas las clases van prefijadas "cv-" a proposito: el proyecto todavia
+   usa Bootstrap en Login/SinAcceso (clases .btn, .card, .badge, etc.), y
+   el mockup original tambien usaba esos nombres. Sin el prefijo, las dos
+   hojas de estilo pisarian reglas entre si de forma impredecible.
+
+   Se porta solo lo que el dashboard usa hoy (sidebar, topbar, tarjetas,
+   tabla, alerta, badges). El resto del mockup (calendario, modal de alta,
+   filtros de la lista) se agrega cuando se construya cada pantalla, para
+   no cargar CSS muerto antes de tiempo.
+   ============================================================ */
+
+:root {
+  --cv-surface-1:      #fcfcfb;
+  --cv-plane:           #f9f9f7;
+  --cv-text-primary:    #0b0b0b;
+  --cv-text-secondary:  #52514e;
+  --cv-text-muted:      #898781;
+  --cv-grid:            #e1e0d9;
+  --cv-baseline:        #c3c2b7;
+  --cv-border:          rgba(11,11,11,0.10);
+  --cv-sidebar:         #14140f;
+  --cv-sidebar-ink:     #e8e7e0;
+  --cv-sidebar-muted:   #8a8880;
+  --cv-accent:          #2a78d6;
+  --cv-good:            #0ca30c;
+  --cv-warning:         #fab219;
+  --cv-critical:        #d03b3b;
+  --cv-good-wash:       #eaf7ea;
+  --cv-warning-wash:    #fdf3dd;
+  --cv-critical-wash:   #fbeaea;
+  --cv-shadow:          0 1px 2px rgba(11,11,11,.04), 0 8px 24px rgba(11,11,11,.05);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    --cv-surface-1:      #1a1a19;
+    --cv-plane:           #0d0d0d;
+    --cv-text-primary:    #ffffff;
+    --cv-text-secondary:  #c3c2b7;
+    --cv-text-muted:      #898781;
+    --cv-grid:            #2c2c2a;
+    --cv-baseline:        #383835;
+    --cv-border:          rgba(255,255,255,0.10);
+    --cv-sidebar:         #111110;
+    --cv-sidebar-ink:     #e8e7e0;
+    --cv-sidebar-muted:   #7d7b74;
+    --cv-accent:          #3987e5;
+    --cv-good-wash:       rgba(12,163,12,.14);
+    --cv-warning-wash:    rgba(250,178,25,.14);
+    --cv-critical-wash:   rgba(208,59,59,.16);
+    --cv-shadow:          0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+
+html[data-theme="dark"] {
+  --cv-surface-1:      #1a1a19;
+  --cv-plane:           #0d0d0d;
+  --cv-text-primary:    #ffffff;
+  --cv-text-secondary:  #c3c2b7;
+  --cv-text-muted:      #898781;
+  --cv-grid:            #2c2c2a;
+  --cv-baseline:        #383835;
+  --cv-border:          rgba(255,255,255,0.10);
+  --cv-sidebar:         #111110;
+  --cv-sidebar-ink:     #e8e7e0;
+  --cv-sidebar-muted:   #7d7b74;
+  --cv-accent:          #3987e5;
+  --cv-good-wash:       rgba(12,163,12,.14);
+  --cv-warning-wash:    rgba(250,178,25,.14);
+  --cv-critical-wash:   rgba(208,59,59,.16);
+  --cv-shadow:          0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+
+body:has(.cv-app) {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--cv-plane);
+  color: var(--cv-text-primary);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.cv-app { display: flex; min-height: 100vh; }
+
+/* ---------- Sidebar ---------- */
+.cv-sidebar {
+  width: 232px; flex-shrink: 0;
+  background: var(--cv-sidebar); color: var(--cv-sidebar-ink);
+  display: flex; flex-direction: column;
+  padding: 20px 12px;
+  position: sticky; top: 0; height: 100vh;
+}
+.cv-brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 22px; }
+.cv-brand-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--cv-accent);
+  display: grid; place-items: center; color: #fff; flex-shrink: 0;
+}
+.cv-brand-name { font-weight: 620; font-size: 14.5px; letter-spacing: -.01em; }
+.cv-nav-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--cv-sidebar-muted); padding: 14px 10px 6px; font-weight: 600;
+}
+.cv-nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 10px; border-radius: 8px;
+  color: var(--cv-sidebar-muted); font-weight: 500; font-size: 13.5px;
+  text-decoration: none;
+  transition: background .12s, color .12s;
+}
+.cv-nav-item:hover { background: rgba(255,255,255,.06); color: var(--cv-sidebar-ink); }
+.cv-nav-item.is-active { background: rgba(255,255,255,.10); color: #fff; }
+
+.cv-sidebar-foot { margin-top: auto; padding: 12px 10px 0; border-top: 1px solid rgba(255,255,255,.09); }
+.cv-user { display: flex; align-items: center; gap: 10px; }
+.cv-avatar {
+  width: 30px; height: 30px; border-radius: 50%; background: #3a3a33;
+  display: grid; place-items: center; font-size: 11.5px; font-weight: 600; color: #fff;
+  flex-shrink: 0;
+}
+.cv-user-name {
+  font-size: 12.5px; font-weight: 550;
+  max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cv-logout-form { margin: 0; }
+.cv-logout-btn {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-size: 11px; color: var(--cv-sidebar-muted); text-decoration: underline;
+}
+.cv-logout-btn:hover { color: var(--cv-sidebar-ink); }
+
+/* ---------- Topbar ---------- */
+.cv-main { flex: 1; min-width: 0; }
+.cv-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 28px; background: var(--cv-surface-1);
+  border-bottom: 1px solid var(--cv-border);
+  position: sticky; top: 0; z-index: 20;
+}
+.cv-search { position: relative; flex: 1; max-width: 420px; }
+.cv-search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--cv-text-muted); }
+.cv-search input {
+  width: 100%; padding: 9px 12px 9px 34px; font: inherit; font-size: 13.5px;
+  border: 1px solid var(--cv-border); border-radius: 9px;
+  background: var(--cv-plane); color: var(--cv-text-primary);
+}
+.cv-search input::placeholder { color: var(--cv-text-muted); }
+.cv-search input:focus { outline: 2px solid var(--cv-accent); outline-offset: -1px; background: var(--cv-surface-1); }
+.cv-spacer { flex: 1; }
+.cv-icon-btn {
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border: 1px solid var(--cv-border); border-radius: 9px;
+  background: var(--cv-surface-1); color: var(--cv-text-secondary);
+  cursor: pointer;
+}
+.cv-icon-btn:hover { background: var(--cv-plane); color: var(--cv-text-primary); }
+
+.cv-content { padding: 26px 28px 48px; max-width: 1360px; }
+.cv-page-title { font-size: 21px; font-weight: 640; letter-spacing: -.02em; margin: 0 0 2px; }
+.cv-page-sub { color: var(--cv-text-secondary); font-size: 13.5px; margin: 0 0 22px; }
+
+/* ---------- Alerta de vencidos ---------- */
+.cv-alert {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--cv-critical-wash); border: 1px solid rgba(208,59,59,.30);
+  border-radius: 11px; padding: 13px 16px; margin-bottom: 18px;
+}
+.cv-alert svg { color: var(--cv-critical); flex-shrink: 0; }
+.cv-alert-text { font-size: 13.5px; font-weight: 500; }
+.cv-alert-text b { font-weight: 640; }
+
+/* ---------- Tiles (contadores del semaforo) ---------- */
+.cv-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.cv-tile {
+  background: var(--cv-surface-1); border: 1px solid var(--cv-border);
+  border-radius: 13px; padding: 17px 18px; box-shadow: var(--cv-shadow);
+  position: relative; overflow: hidden;
+}
+.cv-tile::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cv-tono, var(--cv-baseline)); }
+.cv-tile-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.cv-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--cv-tono); flex-shrink: 0; }
+.cv-tile-label { font-size: 12.5px; font-weight: 560; color: var(--cv-text-secondary); }
+.cv-tile-value { font-size: 34px; font-weight: 650; letter-spacing: -.03em; line-height: 1; font-variant-numeric: normal; }
+.cv-t-good { --cv-tono: var(--cv-good); }
+.cv-t-warn { --cv-tono: var(--cv-warning); }
+.cv-t-crit { --cv-tono: var(--cv-critical); }
+
+/* ---------- Tarjetas ---------- */
+.cv-card {
+  background: var(--cv-surface-1); border: 1px solid var(--cv-border);
+  border-radius: 13px; box-shadow: var(--cv-shadow); overflow: hidden;
+}
+.cv-card-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 15px 18px; border-bottom: 1px solid var(--cv-border);
+}
+.cv-card-title { font-size: 14px; font-weight: 600; letter-spacing: -.01em; }
+.cv-card-sub { font-size: 12px; color: var(--cv-text-muted); }
+
+/* ---------- Tabla de proximos vencimientos ---------- */
+table.cv-table { width: 100%; border-collapse: collapse; }
+table.cv-table thead th {
+  text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--cv-text-muted);
+  padding: 10px 18px; border-bottom: 1px solid var(--cv-border);
+}
+table.cv-table tbody td { padding: 13px 18px; border-bottom: 1px solid var(--cv-grid); vertical-align: middle; }
+table.cv-table tbody tr:last-child td { border-bottom: 0; }
+table.cv-table tbody tr:hover { background: var(--cv-plane); }
+.cv-item-name { font-weight: 550; font-size: 13.5px; }
+.cv-item-meta { font-size: 12px; color: var(--cv-text-muted); margin-top: 1px; }
+.cv-date-main { font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.cv-date-rel { font-size: 12px; color: var(--cv-text-muted); margin-top: 1px; }
+
+.cv-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3.5px 9px 3.5px 7px; border-radius: 7px;
+  font-size: 12px; font-weight: 560; white-space: nowrap;
+  border: 1px solid transparent;
+}
+.cv-badge svg { flex-shrink: 0; }
+.cv-b-good { background: var(--cv-good-wash); color: var(--cv-text-primary); border-color: rgba(12,163,12,.28); }
+.cv-b-good svg { color: var(--cv-good); }
+.cv-b-warn { background: var(--cv-warning-wash); color: var(--cv-text-primary); border-color: rgba(250,178,25,.42); }
+.cv-b-warn svg { color: #a06f00; }
+html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
+@media (prefers-color-scheme: dark) { html:not([data-theme="light"]) .cv-b-warn svg { color: var(--cv-warning); } }
+.cv-b-crit { background: var(--cv-critical-wash); color: var(--cv-text-primary); border-color: rgba(208,59,59,.30); }
+.cv-b-crit svg { color: var(--cv-critical); }
+
+/* ---------- Estado vacio ---------- */
+.cv-empty { padding: 40px 18px; text-align: center; color: var(--cv-text-muted); font-size: 13.5px; }
+
+@media (max-width: 860px) {
+  .cv-sidebar { display: none; }
+  .cv-content { padding: 20px 16px 40px; }
+  .cv-topbar { padding: 12px 16px; }
+}
