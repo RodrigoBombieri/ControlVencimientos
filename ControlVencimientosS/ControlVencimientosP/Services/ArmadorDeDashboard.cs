@@ -30,6 +30,13 @@ public record ItemDashboard(
     int DiasRestantes,
     EstadoSemaforo Estado);
 
+/// <summary>
+/// Cuantos vencimientos activos caen en un mes calendario. Cuenta por fecha,
+/// no por semaforo: un vencimiento que ya paso pero es de este mes suma igual,
+/// asi el grafico muestra el volumen real del mes, no solo lo pendiente.
+/// </summary>
+public record MesDashboard(int Anio, int Mes, int Cantidad);
+
 /// <summary>Todo lo que necesita la pantalla de inicio.</summary>
 public class ResumenDashboard
 {
@@ -39,6 +46,16 @@ public class ResumenDashboard
     public int PorVencer { get; init; }
     public int Vencidos { get; init; }
     public IReadOnlyList<ItemDashboard> Proximos { get; init; } = [];
+    public IReadOnlyList<MesDashboard> PorMes { get; init; } = [];
+
+    /// <summary>
+    /// Se completa aparte, despues de <see cref="ArmadorDeDashboard.Armar"/>:
+    /// depende de la configuracion de avisos y de los destinatarios, algo que
+    /// no tiene nada que ver con "armar el resumen de vencimientos". Por eso
+    /// no es <c>init</c> como el resto de la clase: el controller la asigna
+    /// una vez que la calcula con <see cref="ArmadorDeAvisos"/>.
+    /// </summary>
+    public ProximoAviso? ProximoAviso { get; set; }
 }
 
 /// <summary>
@@ -50,7 +67,7 @@ public class ResumenDashboard
 public static class ArmadorDeDashboard
 {
     public static ResumenDashboard Armar(
-        IEnumerable<FilaVencimiento> filas, DateOnly hoy, int maxProximos = 8)
+        IEnumerable<FilaVencimiento> filas, DateOnly hoy, int maxProximos = 8, int mesesGrafico = 6)
     {
         var items = filas
             .Select(f =>
@@ -79,7 +96,30 @@ public static class ArmadorDeDashboard
             Proximos = items
                 .OrderBy(i => i.FechaVencimiento)
                 .Take(maxProximos)
-                .ToList()
+                .ToList(),
+            PorMes = ArmarPorMes(items, hoy, mesesGrafico)
         };
+    }
+
+    /// <summary>
+    /// Un balde por mes, empezando en el mes de <paramref name="hoy"/>. Los
+    /// meses sin ningun vencimiento igual aparecen, en cero: el grafico
+    /// siempre muestra los mismos N meses, nunca "salta" uno vacio.
+    /// </summary>
+    private static IReadOnlyList<MesDashboard> ArmarPorMes(
+        IReadOnlyList<ItemDashboard> items, DateOnly hoy, int meses)
+    {
+        var baldes = new List<MesDashboard>(meses);
+
+        for (var i = 0; i < meses; i++)
+        {
+            var fecha = hoy.AddMonths(i);
+            var cantidad = items.Count(it =>
+                it.FechaVencimiento.Year == fecha.Year && it.FechaVencimiento.Month == fecha.Month);
+
+            baldes.Add(new MesDashboard(fecha.Year, fecha.Month, cantidad));
+        }
+
+        return baldes;
     }
 }

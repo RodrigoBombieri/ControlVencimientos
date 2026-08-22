@@ -18,7 +18,9 @@ namespace ControlVencimientosP.Controllers
         {
             var empresa = await _db.Empresas.FindAsync(_tenant.EmpresaId);
             var zonaHoraria = empresa?.ZonaHoraria ?? "America/Argentina/Buenos_Aires";
-            var hoy = CalculadoraDeEstado.HoyEnLaEmpresa(zonaHoraria, DateTimeOffset.UtcNow);
+            var ahora = DateTimeOffset.UtcNow;
+            var hoy = CalculadoraDeEstado.HoyEnLaEmpresa(zonaHoraria, ahora);
+            var horaActual = CalculadoraDeEstado.HoraActualEnLaEmpresa(zonaHoraria, ahora);
 
             // El query filter global de AppDbContext ya restringe esto a la
             // empresa actual: no hace falta filtrar por EmpresaId a mano aca.
@@ -37,6 +39,19 @@ namespace ControlVencimientosP.Controllers
                 .ToListAsync();
 
             var resumen = ArmadorDeDashboard.Armar(filas, hoy);
+
+            var config = await _db.ConfiguracionesAvisos.FindAsync(_tenant.EmpresaId);
+            var destinatarios = await _db.Destinatarios.CountAsync(d => d.Activo);
+
+            resumen.ProximoAviso = ArmadorDeAvisos.Armar(
+                filas,
+                hoy,
+                horaActual,
+                config?.HoraEnvio ?? new TimeOnly(8, 0),
+                config?.Hitos() ?? [],
+                config?.ReenviarVencidosCadaDias ?? 0,
+                destinatarios);
+
             return View(resumen);
         }
 

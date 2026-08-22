@@ -368,3 +368,69 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 /* ---------- Acciones dentro de una fila de tabla (ej: Renovar en el listado) ---------- */
 .cv-table-actions { text-align: right; white-space: nowrap; }
 .cv-table-actions .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }
+
+/* ---------- Calendario ---------- */
+.cv-calendario { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.cv-calendario thead th {
+  text-align: center; font-size: 11px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--cv-text-muted);
+  padding: 10px 6px; border-bottom: 1px solid var(--cv-border);
+}
+.cv-calendario tbody td {
+  width: 14.2857%; height: 108px; vertical-align: top;
+  padding: 8px; border: 1px solid var(--cv-border);
+}
+.cv-calendario tbody tr:first-child td { border-top: 0; }
+.cv-calendario tbody td:first-child { border-left: 0; }
+.cv-calendario tbody td:last-child { border-right: 0; }
+.cv-calendario tbody tr:last-child td { border-bottom: 0; }
+.cv-dia-afuera { color: var(--cv-text-muted); }
+.cv-dia-numero {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 22px; padding: 0 6px;
+  font-size: 12.5px; font-weight: 560; border-radius: 20px; color: inherit;
+}
+.cv-dia-hoy { background: var(--cv-text-primary); color: var(--cv-surface-1); }
+.cv-dia-items { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.cv-dia-items li a {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11.5px; color: var(--cv-text-secondary); text-decoration: none;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cv-dia-items li a:hover { color: var(--cv-text-primary); text-decoration: underline; }
+.cv-dia-items .cv-dot { width: 6px; height: 6px; }
+
+/* ---------- Dashboard: layout de dos columnas ---------- */
+.cv-dash-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 18px; align-items: start; }
+.cv-dash-side { display: flex; flex-direction: column; gap: 18px; }
+@media (max-width: 1080px) { .cv-dash-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Grafico "Vencimientos por mes" ---------- */
+.cv-chart-body { padding: 16px 18px 4px; }
+.cv-barchart { display: flex; align-items: flex-start; gap: 8px; }
+.cv-bar-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; cursor: default; }
+.cv-bar-valor {
+  font-size: 11.5px; font-weight: 620; color: var(--cv-text-secondary);
+  margin-bottom: 6px; font-variant-numeric: tabular-nums;
+}
+.cv-bar-track { width: 100%; max-width: 28px; height: 104px; display: flex; align-items: flex-end; }
+.cv-bar {
+  width: 100%; background: var(--cv-accent); border-radius: 4px 4px 0 0;
+  min-height: 3px; transition: filter .12s;
+}
+.cv-bar-col:hover .cv-bar { filter: brightness(0.88); }
+.cv-bar-mes {
+  font-size: 11px; font-weight: 550; color: var(--cv-text-muted);
+  width: 100%; text-align: center; margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--cv-grid);
+}
+
+/* ---------- Card "Proximo aviso automatico" ---------- */
+.cv-aviso-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+.cv-aviso-vacio { font-size: 13px; color: var(--cv-text-muted); line-height: 1.5; }
+.cv-aviso-mail { background: var(--cv-plane); border: 1px solid var(--cv-border); border-radius: 10px; padding: 13px 14px; }
+.cv-aviso-mail-asunto { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.cv-aviso-mail-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.cv-aviso-mail-items li { font-size: 12.5px; color: var(--cv-text-secondary); line-height: 1.4; }
+.cv-aviso-mail-mas { font-size: 12px; color: var(--cv-text-muted); margin-top: 7px; }
+.cv-aviso-cta { align-self: flex-start; }

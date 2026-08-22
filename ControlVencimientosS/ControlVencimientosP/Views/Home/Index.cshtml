@@ -1,4 +1,4 @@
-﻿@model ControlVencimientosP.Services.ResumenDashboard
+@model ControlVencimientosP.Services.ResumenDashboard
 @using System.Globalization
 @{
     ViewData["Title"] = "Inicio";
@@ -8,6 +8,8 @@
     // Solo la primera letra: ToTitleCase pondría mayúscula en "De" también,
     // que en español queda mal ("21 De Agosto De 2026").
     fechaLarga = char.ToUpperInvariant(fechaLarga[0]) + fechaLarga[1..];
+
+    var maxPorMes = Model.PorMes.Count == 0 ? 0 : Model.PorMes.Max(m => m.Cantidad);
 }
 
 @if (TempData["Mensaje"] is string mensaje)
@@ -50,48 +52,127 @@
     </div>
 </div>
 
-<div class="cv-card">
-    <div class="cv-card-head">
-        <div>
-            <div class="cv-card-title">Próximos vencimientos</div>
-            <div class="cv-card-sub">Ordenados por fecha</div>
+<div class="cv-dash-grid">
+    <div class="cv-card">
+        <div class="cv-card-head">
+            <div>
+                <div class="cv-card-title">Próximos vencimientos</div>
+                <div class="cv-card-sub">Ordenados por fecha</div>
+            </div>
         </div>
+
+        @if (Model.Proximos.Count == 0)
+        {
+            <div class="cv-empty">
+                Todavía no cargaste ningún vencimiento.
+            </div>
+        }
+        else
+        {
+            <table class="cv-table">
+                <thead>
+                    <tr>
+                        <th>Ítem</th>
+                        <th>Vence</th>
+                        <th>Estado</th>
+                        <th class="cv-table-actions"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Proximos)
+                    {
+                        <tr>
+                            <td>
+                                <div class="cv-item-name">
+                                    <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId">@item.Nombre</a>
+                                </div>
+                                <div class="cv-item-meta">@item.CategoriaNombre@(item.Codigo is null ? "" : $" · {item.Codigo}")</div>
+                            </td>
+                            <td>
+                                <div class="cv-date-main">@item.FechaVencimiento.ToString("dd/MM/yyyy")</div>
+                                <div class="cv-date-rel">@PresentacionSemaforo.Relativo(item.DiasRestantes)</div>
+                            </td>
+                            <td><partial name="_BadgeEstado" model="item.Estado" /></td>
+                            <td class="cv-table-actions">
+                                @if (item.Estado != EstadoSemaforo.Vigente)
+                                {
+                                    <a class="cv-btn-ghost" asp-controller="Vencimientos" asp-action="Renovar" asp-route-id="@item.VencimientoId">Renovar</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
 
-    @if (Model.Proximos.Count == 0)
-    {
-        <div class="cv-empty">
-            Todavía no cargaste ningún vencimiento.
+    <div class="cv-dash-side">
+        <div class="cv-card">
+            <div class="cv-card-head">
+                <div>
+                    <div class="cv-card-title">Vencimientos por mes</div>
+                    <div class="cv-card-sub">Próximos @Model.PorMes.Count meses</div>
+                </div>
+            </div>
+            <div class="cv-chart-body">
+                <div class="cv-barchart">
+                    @foreach (var mes in Model.PorMes)
+                    {
+                        var textoMes = new DateOnly(mes.Anio, mes.Mes, 1)
+                            .ToString("MMM", CultureInfo.GetCultureInfo("es-AR"))
+                            .TrimEnd('.');
+                        var etiqueta = char.ToUpperInvariant(textoMes[0]) + textoMes[1..];
+                        var altura = maxPorMes == 0 ? 4 : Math.Max(4, (int)Math.Round(mes.Cantidad * 100.0 / maxPorMes));
+                        <div class="cv-bar-col" title="@etiqueta: @mes.Cantidad @(mes.Cantidad == 1 ? "vencimiento" : "vencimientos")">
+                            <div class="cv-bar-valor">@mes.Cantidad</div>
+                            <div class="cv-bar-track"><div class="cv-bar" style="height:@(altura)%"></div></div>
+                            <div class="cv-bar-mes">@etiqueta</div>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-    }
-    else
-    {
-        <table class="cv-table">
-            <thead>
-                <tr>
-                    <th>Ítem</th>
-                    <th>Vence</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Proximos)
-                {
-                    <tr>
-                        <td>
-                            <div class="cv-item-name">
-                                <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId">@item.Nombre</a>
-                            </div>
-                            <div class="cv-item-meta">@item.CategoriaNombre@(item.Codigo is null ? "" : $" · {item.Codigo}")</div>
-                        </td>
-                        <td>
-                            <div class="cv-date-main">@item.FechaVencimiento.ToString("dd/MM/yyyy")</div>
-                            <div class="cv-date-rel">@PresentacionSemaforo.Relativo(item.DiasRestantes)</div>
-                        </td>
-                        <td><partial name="_BadgeEstado" model="item.Estado" /></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+
+        @if (Model.ProximoAviso is { } aviso)
+        {
+            <div class="cv-card">
+                <div class="cv-card-head">
+                    <div>
+                        <div class="cv-card-title">Próximo aviso automático</div>
+                        <div class="cv-card-sub">
+                            @(aviso.EsHoy ? "Hoy" : "Mañana") @aviso.Hora.ToString("HH:mm", CultureInfo.InvariantCulture)@(aviso.CantidadDestinatarios > 0 ? $" · {aviso.CantidadDestinatarios} {(aviso.CantidadDestinatarios == 1 ? "destinatario" : "destinatarios")}" : "")
+                        </div>
+                    </div>
+                </div>
+                <div class="cv-aviso-body">
+                    @if (aviso.CantidadDestinatarios == 0)
+                    {
+                        <div class="cv-aviso-vacio">Todavía no cargaste destinatarios: el envío automático no tiene a quién mandarle el mail.</div>
+                    }
+                    else if (aviso.TotalItems == 0)
+                    {
+                        <div class="cv-aviso-vacio">Ningún vencimiento entra en el próximo envío.</div>
+                    }
+                    else
+                    {
+                        <div class="cv-aviso-mail">
+                            <div class="cv-aviso-mail-asunto">Vencimientos: @aviso.TotalItems @(aviso.TotalItems == 1 ? "pendiente" : "pendientes")</div>
+                            <ul class="cv-aviso-mail-items">
+                                @foreach (var item in aviso.Urgentes)
+                                {
+                                    <li>«@item.Nombre» @PresentacionSemaforo.Relativo(item.DiasRestantes)</li>
+                                }
+                            </ul>
+                            @{ var restantes = aviso.TotalItems - aviso.Urgentes.Count; }
+                            @if (restantes > 0)
+                            {
+                                <div class="cv-aviso-mail-mas">+ @restantes más</div>
+                            }
+                        </div>
+                    }
+                    <a class="cv-btn-ghost cv-aviso-cta" asp-controller="Vencimientos" asp-action="Index">Ver y renovar</a>
+                </div>
+            </div>
+        }
+    </div>
 </div>

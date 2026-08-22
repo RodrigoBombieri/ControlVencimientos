@@ -39,6 +39,18 @@ public static class CalculadoraDeEstado
     /// color antes de tiempo.
     /// </summary>
     public static DateOnly HoyEnLaEmpresa(string zonaHoraria, DateTimeOffset ahora)
+        => DateOnly.FromDateTime(ConvertirALaEmpresa(zonaHoraria, ahora));
+
+    /// <summary>
+    /// La hora local de la empresa en este momento. Se usa para decidir si el
+    /// envio automatico de hoy ya salio o todavia esta por salir
+    /// (ver <see cref="ArmadorDeAvisos"/>).
+    /// </summary>
+    public static TimeOnly HoraActualEnLaEmpresa(string zonaHoraria, DateTimeOffset ahora)
+        => TimeOnly.FromDateTime(ConvertirALaEmpresa(zonaHoraria, ahora));
+
+    /// <summary>Misma resolucion de zona horaria para las dos funciones de arriba.</summary>
+    private static DateTime ConvertirALaEmpresa(string zonaHoraria, DateTimeOffset ahora)
     {
         TimeZoneInfo zona;
         try
@@ -50,6 +62,6 @@ public static class CalculadoraDeEstado
             zona = TimeZoneInfo.Utc;
         }
 
-        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(ahora, zona).DateTime);
+        return TimeZoneInfo.ConvertTime(ahora, zona).DateTime;
     }
 }

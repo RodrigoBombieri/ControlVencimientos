@@ -81,4 +81,15 @@ public class CalculadoraDeEstadoTests
 
         Assert.Equal(new DateOnly(2026, 8, 18), hoy);   // cae a UTC
     }
+
+    [Fact]
+    public void La_hora_actual_tambien_se_calcula_en_la_zona_horaria_de_la_empresa()
+    {
+        // Mismo caso que "Hoy_se_calcula...": 18/08 02:00 UTC es 17/08 23:00 en Buenos Aires.
+        var ahora = new DateTimeOffset(2026, 8, 18, 2, 0, 0, TimeSpan.Zero);
+
+        var hora = CalculadoraDeEstado.HoraActualEnLaEmpresa("America/Argentina/Buenos_Aires", ahora);
+
+        Assert.Equal(new TimeOnly(23, 0), hora);
+    }
 }

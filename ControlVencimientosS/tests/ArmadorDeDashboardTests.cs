@@ -93,4 +93,39 @@ public class ArmadorDeDashboardTests
         Assert.Equal(1, resumen.Vigentes);
         Assert.Equal(0, resumen.PorVencer);
     }
+
+    [Fact]
+    public void Arma_un_balde_por_mes_incluyendo_los_que_no_tienen_nada()
+    {
+        var filas = new[]
+        {
+            Fila("2026-08-25"),   // agosto (mes actual)
+            Fila("2026-08-05"),   // agosto tambien, aunque ya vencio dentro del mes
+            Fila("2026-10-01"),   // octubre
+            Fila("2027-06-01"),   // fuera de la ventana de 6 meses: no cuenta
+        };
+
+        var resumen = ArmadorDeDashboard.Armar(filas, Hoy);
+
+        Assert.Equal(6, resumen.PorMes.Count);
+        Assert.Equal(new MesDashboard(2026, 8, 2), resumen.PorMes[0]);
+        Assert.Equal(new MesDashboard(2026, 9, 0), resumen.PorMes[1]);
+        Assert.Equal(new MesDashboard(2026, 10, 1), resumen.PorMes[2]);
+        Assert.Equal(3, resumen.PorMes.Sum(m => m.Cantidad));   // el de 2027 no entro
+    }
+
+    [Fact]
+    public void Respeta_la_cantidad_de_meses_pedida_para_el_grafico()
+    {
+        var filas = new[] { Fila("2027-01-15") };   // mes 6 si se piden 6, afuera si se piden 3
+
+        var conSeis = ArmadorDeDashboard.Armar(filas, Hoy, mesesGrafico: 6);
+        var conTres = ArmadorDeDashboard.Armar(filas, Hoy, mesesGrafico: 3);
+
+        Assert.Equal(6, conSeis.PorMes.Count);
+        Assert.Equal(1, conSeis.PorMes[^1].Cantidad);
+
+        Assert.Equal(3, conTres.PorMes.Count);
+        Assert.Equal(0, conTres.PorMes.Sum(m => m.Cantidad));
+    }
 }

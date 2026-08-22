@@ -1,0 +1,73 @@
+@model ControlVencimientosP.Services.ResumenCalendario
+@using System.Globalization
+@{
+    ViewData["Title"] = "Calendario";
+
+    var mesActual = new DateOnly(Model.Anio, Model.Mes, 1);
+    var mesAnterior = mesActual.AddMonths(-1);
+    var mesSiguiente = mesActual.AddMonths(1);
+
+    var nombreMes = mesActual.ToDateTime(TimeOnly.MinValue)
+        .ToString("MMMM yyyy", CultureInfo.GetCultureInfo("es-AR"));
+    // Solo la primera letra: ToTitleCase pondría mayúscula en cada palabra,
+    // que en español queda mal ("Agosto De 2026").
+    nombreMes = char.ToUpperInvariant(nombreMes[0]) + nombreMes[1..];
+
+    string[] diasSemana = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"];
+}
+
+<h1 class="cv-page-title">Calendario</h1>
+<p class="cv-page-sub">@nombreMes</p>
+
+<div class="cv-card">
+    <div class="cv-card-head">
+        <a class="cv-icon-btn" asp-action="Index" asp-route-anio="@mesAnterior.Year" asp-route-mes="@mesAnterior.Month" title="Mes anterior">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+        </a>
+        <div class="cv-card-title">@nombreMes</div>
+        <a class="cv-icon-btn" asp-action="Index" asp-route-anio="@mesSiguiente.Year" asp-route-mes="@mesSiguiente.Month" title="Mes siguiente">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+        </a>
+        <div class="cv-spacer"></div>
+        <partial name="_BadgeEstado" model="EstadoSemaforo.Vencido" />
+        <partial name="_BadgeEstado" model="EstadoSemaforo.PorVencer" />
+        <partial name="_BadgeEstado" model="EstadoSemaforo.Vigente" />
+    </div>
+
+    <table class="cv-calendario">
+        <thead>
+            <tr>
+                @foreach (var dia in diasSemana)
+                {
+                    <th>@dia</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var semana in Model.Semanas)
+            {
+                <tr>
+                    @foreach (var dia in semana)
+                    {
+                        <td class="@(dia.EsDelMesActual ? "" : "cv-dia-afuera")">
+                            <div class="cv-dia-numero @(dia.EsHoy ? "cv-dia-hoy" : "")">@dia.Fecha.Day</div>
+                            @if (dia.Items.Count > 0)
+                            {
+                                <ul class="cv-dia-items">
+                                    @foreach (var item in dia.Items)
+                                    {
+                                        <li>
+                                            <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId" title="@item.Nombre">
+                                                <span class="cv-dot @PresentacionSemaforo.ClaseDeDot(item.Estado)"></span>@item.Nombre
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

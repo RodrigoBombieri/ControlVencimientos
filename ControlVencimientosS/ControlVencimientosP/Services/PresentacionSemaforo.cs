@@ -16,6 +16,18 @@ public static class PresentacionSemaforo
         _ => ("cv-b-good", "check", "Vigente")
     };
 
+    /// <summary>
+    /// La clase de color para un ".cv-dot" (el puntito que acompaña un
+    /// ítem en el calendario). Separada de <see cref="Info"/> porque ese
+    /// devuelve clases de badge ("cv-b-*"), no de punto ("cv-t-*").
+    /// </summary>
+    public static string ClaseDeDot(EstadoSemaforo estado) => estado switch
+    {
+        EstadoSemaforo.Vencido => "cv-t-crit",
+        EstadoSemaforo.PorVencer => "cv-t-warn",
+        _ => "cv-t-good"
+    };
+
     public static string Relativo(int dias) => dias switch
     {
         < 0 => $"hace {-dias} día{(-dias == 1 ? "" : "s")}",

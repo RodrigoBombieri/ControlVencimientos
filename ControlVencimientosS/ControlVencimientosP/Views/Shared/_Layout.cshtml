@@ -50,10 +50,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
                 Vencimientos
             </a>
-            @* Todavia no existe esta pantalla: queda visible para anticipar
-               la navegacion final (coincide con el mockup) pero no lleva a
-               ningun lado hasta que se construya. *@
-            <a class="cv-nav-item" href="#" title="Próximamente">
+            <a class="cv-nav-item @(controladorActual == "Calendario" ? "is-active" : "")" asp-controller="Calendario" asp-action="Index">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
                 Calendario
             </a>
