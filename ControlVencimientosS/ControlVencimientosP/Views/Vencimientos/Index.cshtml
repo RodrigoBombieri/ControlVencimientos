@@ -1,0 +1,87 @@
+@model ControlVencimientosP.ViewModels.ListadoVencimientosViewModel
+@{
+    ViewData["Title"] = "Vencimientos";
+    var hayFiltroActivo = Model.FiltroEstado != null || Model.FiltroCategoriaId != null || !string.IsNullOrWhiteSpace(Model.FiltroTexto);
+}
+
+<h1 class="cv-page-title">Vencimientos</h1>
+<p class="cv-page-sub">
+    @(Model.Total == 1 ? "1 ítem" : $"{Model.Total} ítems") ·
+    @Model.Vencidos @(Model.Vencidos == 1 ? "vencido" : "vencidos") ·
+    @Model.PorVencer por vencer
+</p>
+
+<form method="get" asp-controller="Vencimientos" asp-action="Index" class="cv-filters">
+    <button type="submit" name="estado" value="" class="cv-chip @(Model.FiltroEstado is null ? "is-on" : "")">Todos</button>
+    <button type="submit" name="estado" value="vencido" class="cv-chip @(Model.FiltroEstado == EstadoSemaforo.Vencido ? "is-on" : "")">
+        <span class="cv-dot cv-t-crit"></span>Vencido
+    </button>
+    <button type="submit" name="estado" value="porvencer" class="cv-chip @(Model.FiltroEstado == EstadoSemaforo.PorVencer ? "is-on" : "")">
+        <span class="cv-dot cv-t-warn"></span>Por vencer
+    </button>
+    <button type="submit" name="estado" value="vigente" class="cv-chip @(Model.FiltroEstado == EstadoSemaforo.Vigente ? "is-on" : "")">
+        <span class="cv-dot cv-t-good"></span>Vigente
+    </button>
+
+    <select name="categoriaId" class="cv-filters-select" onchange="this.form.submit()">
+        <option value="">Todas las categorías</option>
+        @foreach (var cat in Model.Categorias)
+        {
+            <option value="@cat.Value" selected="@(cat.Value == Model.FiltroCategoriaId?.ToString())">@cat.Text</option>
+        }
+    </select>
+
+    <input type="text" name="q" value="@Model.FiltroTexto" class="cv-filters-search" placeholder="Buscar por nombre, código o ubicación…" />
+    <button type="submit" class="cv-btn-ghost">Buscar</button>
+
+    @if (hayFiltroActivo)
+    {
+        <a class="cv-chip" asp-controller="Vencimientos" asp-action="Index">Limpiar filtros</a>
+    }
+</form>
+
+<div class="cv-card">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="cv-empty">
+            @(hayFiltroActivo ? "Ningún vencimiento coincide con este filtro." : "Todavía no cargaste ningún vencimiento.")
+        </div>
+    }
+    else
+    {
+        <table class="cv-table">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Categoría</th>
+                    <th>Ubicación</th>
+                    <th>Vence</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="cv-item-name">
+                                <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId">@item.Nombre</a>
+                            </div>
+                            @if (item.Codigo is not null)
+                            {
+                                <div class="cv-item-meta">@item.Codigo</div>
+                            }
+                        </td>
+                        <td>@item.CategoriaNombre</td>
+                        <td>@(item.Ubicacion ?? "—")</td>
+                        <td>
+                            <div class="cv-date-main">@item.FechaVencimiento.ToString("dd/MM/yyyy")</div>
+                            <div class="cv-date-rel">@PresentacionSemaforo.Relativo(item.DiasRestantes)</div>
+                        </td>
+                        <td><partial name="_BadgeEstado" model="item.Estado" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

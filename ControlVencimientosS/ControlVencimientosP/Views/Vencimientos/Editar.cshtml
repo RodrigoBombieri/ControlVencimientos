@@ -1,0 +1,84 @@
+@model ControlVencimientosP.ViewModels.EditarVencimientoViewModel
+@{
+    ViewData["Title"] = "Editar vencimiento";
+    var hayOpcionalesCargados = !string.IsNullOrEmpty(Model.Ubicacion)
+        || !string.IsNullOrEmpty(Model.Proveedor)
+        || Model.Monto.HasValue;
+}
+
+<h1 class="cv-page-title">Editar vencimiento</h1>
+<p class="cv-page-sub">Corregí los datos si algo se cargó mal.</p>
+
+<div class="cv-form-card">
+    <form asp-controller="Vencimientos" asp-action="Editar" asp-route-id="@Model.VencimientoId" method="post" novalidate>
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="cv-form-errors"></div>
+
+        <div class="cv-field">
+            <label asp-for="CategoriaId">Categoría</label>
+            <select asp-for="CategoriaId" asp-items="Model.Categorias">
+                <option value="">Elegí una categoría…</option>
+            </select>
+            <span asp-validation-for="CategoriaId" class="text-danger"></span>
+        </div>
+
+        <div class="cv-field">
+            <label asp-for="Nombre">Nombre</label>
+            <input asp-for="Nombre" autofocus />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <div class="cv-field-row">
+            <div class="cv-field">
+                <label asp-for="Codigo">Código <span class="cv-hint">(opcional)</span></label>
+                <input asp-for="Codigo" />
+                <span asp-validation-for="Codigo" class="text-danger"></span>
+            </div>
+
+            <div class="cv-field">
+                <label asp-for="FechaVencimiento">Vence el</label>
+                <input asp-for="FechaVencimiento" type="date" />
+                <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
+            </div>
+        </div>
+
+        <p class="cv-hint">
+            Esto corrige el registro actual (por ejemplo, si la fecha se cargó mal). Para una
+            renovación de verdad — nuevo trámite, nueva fecha — todavía no hay una pantalla
+            aparte, así que por ahora también se hace corrigiendo acá.
+        </p>
+
+        <details class="cv-details" open="@hayOpcionalesCargados">
+            <summary>Más opciones</summary>
+
+            <div class="cv-field">
+                <label asp-for="Ubicacion">Ubicación</label>
+                <input asp-for="Ubicacion" />
+                <span asp-validation-for="Ubicacion" class="text-danger"></span>
+            </div>
+
+            <div class="cv-field-row">
+                <div class="cv-field">
+                    <label asp-for="Proveedor">Proveedor</label>
+                    <input asp-for="Proveedor" />
+                    <span asp-validation-for="Proveedor" class="text-danger"></span>
+                </div>
+                <div class="cv-field">
+                    <label asp-for="Monto">Monto</label>
+                    <input asp-for="Monto" type="number" step="0.01" min="0" />
+                    <span asp-validation-for="Monto" class="text-danger"></span>
+                </div>
+            </div>
+        </details>
+
+        <div class="cv-form-actions">
+            <a class="cv-btn-ghost" asp-action="Detalle" asp-route-id="@Model.VencimientoId">Cancelar</a>
+            <button type="submit" class="cv-btn-primary">Guardar cambios</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

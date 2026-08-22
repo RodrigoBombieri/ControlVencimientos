@@ -20,6 +20,7 @@ public record FilaVencimiento(
 
 /// <summary>Una fila ya lista para pintar en la tabla de "proximos vencimientos".</summary>
 public record ItemDashboard(
+    int VencimientoId,
     int ItemId,
     string Nombre,
     string? Codigo,
@@ -59,7 +60,7 @@ public static class ArmadorDeDashboard
                 var diasRestantes = CalculadoraDeEstado.DiasRestantes(f.FechaVencimiento, hoy);
 
                 return new ItemDashboard(
-                    f.ItemId, f.ItemNombre, f.ItemCodigo, f.CategoriaNombre, f.CategoriaIcono,
+                    f.VencimientoId, f.ItemId, f.ItemNombre, f.ItemCodigo, f.CategoriaNombre, f.CategoriaIcono,
                     f.FechaVencimiento, diasRestantes, estado);
             })
             .ToList();

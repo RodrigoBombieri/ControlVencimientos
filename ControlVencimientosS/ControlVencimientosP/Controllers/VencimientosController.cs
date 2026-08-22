@@ -8,13 +8,327 @@ namespace ControlVencimientosP.Controllers;
 
 public class VencimientosController : Controller
 {
+    // PDF, JPG o PNG hasta 10 MB. Alcanza y sobra para el certificado de un
+    // tramite; ampliar el dia que haga falta otra cosa.
+    private static readonly string[] ExtensionesAdjuntoPermitidas = [".pdf", ".jpg", ".jpeg", ".png"];
+    private const long TamanioMaximoAdjuntoBytes = 10 * 1024 * 1024;
+
     private readonly AppDbContext _db;
     private readonly ITenantProvider _tenant;
+    private readonly IWebHostEnvironment _entorno;
 
-    public VencimientosController(AppDbContext db, ITenantProvider tenant)
+    public VencimientosController(AppDbContext db, ITenantProvider tenant, IWebHostEnvironment entorno)
     {
         _db = db;
         _tenant = tenant;
+        _entorno = entorno;
+    }
+
+    // Los adjuntos viven afuera de wwwroot a proposito: si estuvieran ahi
+    // serian servibles por URL directa sin pasar por autenticacion ni por
+    // el filtro de empresa. Se sirven siempre a traves de DescargarAdjunto.
+    private string CarpetaAdjuntos => Path.Combine(_entorno.ContentRootPath, "App_Data", "adjuntos");
+
+    [HttpGet]
+    public async Task<IActionResult> Index(string? estado, int? categoriaId, string? q)
+    {
+        var hoy = await HoyAsync();
+
+        // El query filter global de AppDbContext ya restringe esto a la
+        // empresa actual: no hace falta filtrar por EmpresaId a mano aca.
+        var filas = await _db.Vencimientos
+            .Activos()
+            .Select(v => new FilaListado(
+                v.Id,
+                v.ItemId,
+                v.Item!.Nombre,
+                v.Item.Codigo,
+                v.Item.Ubicacion,
+                v.Item.CategoriaId,
+                v.Item.Categoria!.Nombre,
+                v.Item.Categoria.Icono,
+                v.FechaVencimiento,
+                v.DiasAviso,
+                v.Item.Categoria.DiasAvisoDefault))
+            .ToListAsync();
+
+        var filtroEstado = ParsearEstado(estado);
+
+        // Se calcula el semaforo una sola vez y se filtra dos veces sobre el
+        // mismo resultado: una vez sin el filtro de estado (para los
+        // totales del subtitulo) y otra con todos los filtros (para la
+        // tabla). Asi el subtitulo no cambia segun que chip este activo.
+        var todos = ArmadorDeListado.Calcular(filas, hoy);
+        var filtrados = ArmadorDeListado.Filtrar(todos, filtroEstado, categoriaId, q);
+
+        var model = new ListadoVencimientosViewModel
+        {
+            Items = filtrados,
+            Total = todos.Count,
+            Vencidos = todos.Count(i => i.Estado == EstadoSemaforo.Vencido),
+            PorVencer = todos.Count(i => i.Estado == EstadoSemaforo.PorVencer),
+            FiltroEstado = filtroEstado,
+            FiltroCategoriaId = categoriaId,
+            FiltroTexto = q,
+            Categorias = await CategoriasParaSelectAsync()
+        };
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Detalle(int id)
+    {
+        var vencimiento = await _db.Vencimientos
+            .Include(v => v.Item!).ThenInclude(i => i!.Categoria)
+            .Include(v => v.Adjuntos)
+            .FirstOrDefaultAsync(v => v.Id == id);
+
+        if (vencimiento is null)
+        {
+            return NotFound();
+        }
+
+        var hoy = await HoyAsync();
+        var diasAviso = CalculadoraDeEstado.DiasAvisoEfectivo(vencimiento.DiasAviso, vencimiento.Item!.Categoria!.DiasAvisoDefault);
+
+        var model = new DetalleVencimientoViewModel
+        {
+            VencimientoId = vencimiento.Id,
+            ItemId = vencimiento.ItemId,
+            ItemNombre = vencimiento.Item.Nombre,
+            ItemCodigo = vencimiento.Item.Codigo,
+            ItemUbicacion = vencimiento.Item.Ubicacion,
+            ItemProveedor = vencimiento.Item.Proveedor,
+            CategoriaNombre = vencimiento.Item.Categoria.Nombre,
+            FechaEmision = vencimiento.FechaEmision,
+            FechaVencimiento = vencimiento.FechaVencimiento,
+            NumeroDocumento = vencimiento.NumeroDocumento,
+            Monto = vencimiento.Monto,
+            Moneda = vencimiento.Moneda,
+            Estado = vencimiento.Estado,
+            EstadoSemaforo = CalculadoraDeEstado.Calcular(vencimiento.FechaVencimiento, diasAviso, hoy),
+            DiasRestantes = CalculadoraDeEstado.DiasRestantes(vencimiento.FechaVencimiento, hoy),
+            CreadoEn = vencimiento.CreadoEn,
+            Adjuntos = vencimiento.Adjuntos.OrderByDescending(a => a.SubidoEn).ToList()
+        };
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Editar(int id)
+    {
+        var vencimiento = await _db.Vencimientos.Include(v => v.Item).FirstOrDefaultAsync(v => v.Id == id);
+        if (vencimiento is null)
+        {
+            return NotFound();
+        }
+
+        // No tiene sentido editar algo que ya fue anulado o renovado: eso
+        // es historial. Se manda de vuelta al detalle en vez de mostrar un
+        // formulario que no va a poder guardar.
+        if (vencimiento.Estado != EstadoVencimiento.Activo)
+        {
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        var model = new EditarVencimientoViewModel
+        {
+            VencimientoId = vencimiento.Id,
+            CategoriaId = vencimiento.Item!.CategoriaId,
+            Nombre = vencimiento.Item.Nombre,
+            Codigo = vencimiento.Item.Codigo,
+            FechaVencimiento = vencimiento.FechaVencimiento.ToString("yyyy-MM-dd"),
+            Ubicacion = vencimiento.Item.Ubicacion,
+            Proveedor = vencimiento.Item.Proveedor,
+            Monto = vencimiento.Monto,
+            Categorias = await CategoriasParaSelectAsync()
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Editar(int id, EditarVencimientoViewModel model)
+    {
+        var vencimiento = await _db.Vencimientos.Include(v => v.Item).FirstOrDefaultAsync(v => v.Id == id);
+        if (vencimiento is null)
+        {
+            return NotFound();
+        }
+
+        if (vencimiento.Estado != EstadoVencimiento.Activo)
+        {
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        DateOnly fechaVencimiento = default;
+        if (string.IsNullOrWhiteSpace(model.FechaVencimiento) ||
+            !DateOnly.TryParseExact(model.FechaVencimiento, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out fechaVencimiento))
+        {
+            ModelState.AddModelError(nameof(model.FechaVencimiento), "La fecha no es válida.");
+        }
+
+        var categoriaValida = await _db.Categorias.AnyAsync(c => c.Id == model.CategoriaId && c.Activa);
+        if (!categoriaValida)
+        {
+            ModelState.AddModelError(nameof(model.CategoriaId), "Elegí una categoría válida.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            model.VencimientoId = id;
+            model.Categorias = await CategoriasParaSelectAsync();
+            return View(model);
+        }
+
+        // A diferencia del alta, esto no crea filas nuevas: corrige las
+        // que ya existen. EF las esta siguiendo (vienen de un Include),
+        // asi que alcanza con cambiar las propiedades y guardar.
+        vencimiento.Item!.CategoriaId = model.CategoriaId;
+        vencimiento.Item.Nombre = model.Nombre.Trim();
+        vencimiento.Item.Codigo = string.IsNullOrWhiteSpace(model.Codigo) ? null : model.Codigo.Trim();
+        vencimiento.Item.Ubicacion = string.IsNullOrWhiteSpace(model.Ubicacion) ? null : model.Ubicacion.Trim();
+        vencimiento.Item.Proveedor = string.IsNullOrWhiteSpace(model.Proveedor) ? null : model.Proveedor.Trim();
+        vencimiento.FechaVencimiento = fechaVencimiento;
+        vencimiento.Monto = model.Monto;
+
+        await _db.SaveChangesAsync();
+
+        TempData["Mensaje"] = $"«{vencimiento.Item.Nombre}» se actualizó correctamente.";
+        return RedirectToAction(nameof(Detalle), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Anular(int id)
+    {
+        var vencimiento = await _db.Vencimientos.Include(v => v.Item).FirstOrDefaultAsync(v => v.Id == id);
+        if (vencimiento is null)
+        {
+            return NotFound();
+        }
+
+        // Idempotente a proposito: si por doble click o back-forward llega
+        // dos veces, la segunda no rompe nada, simplemente no hace nada.
+        if (vencimiento.Estado == EstadoVencimiento.Activo)
+        {
+            vencimiento.Estado = EstadoVencimiento.Anulado;
+            await _db.SaveChangesAsync();
+            TempData["Mensaje"] = $"«{vencimiento.Item?.Nombre}» se anuló. El ítem queda libre para cargar un vencimiento nuevo.";
+        }
+
+        return RedirectToAction(nameof(Detalle), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SubirAdjunto(int id, IFormFile? archivo)
+    {
+        var vencimiento = await _db.Vencimientos.FirstOrDefaultAsync(v => v.Id == id);
+        if (vencimiento is null)
+        {
+            return NotFound();
+        }
+
+        if (archivo is null || archivo.Length == 0)
+        {
+            TempData["Error"] = "Elegí un archivo para subir.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        var extension = Path.GetExtension(archivo.FileName).ToLowerInvariant();
+        if (!ExtensionesAdjuntoPermitidas.Contains(extension))
+        {
+            TempData["Error"] = "Solo se aceptan archivos PDF, JPG o PNG.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        if (archivo.Length > TamanioMaximoAdjuntoBytes)
+        {
+            TempData["Error"] = "El archivo no puede superar los 10 MB.";
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        // Una subcarpeta por empresa y por vencimiento: ademas de prolijo,
+        // hace que borrar un vencimiento (cascade) no deje archivos sueltos
+        // dificiles de rastrear.
+        var rutaRelativa = Path.Combine(_tenant.EmpresaId.ToString(), id.ToString(), $"{Guid.NewGuid()}{extension}");
+        var rutaCompleta = Path.Combine(CarpetaAdjuntos, rutaRelativa);
+        Directory.CreateDirectory(Path.GetDirectoryName(rutaCompleta)!);
+
+        using (var destino = System.IO.File.Create(rutaCompleta))
+        {
+            await archivo.CopyToAsync(destino);
+        }
+
+        _db.Adjuntos.Add(new Adjunto
+        {
+            VencimientoId = id,
+            NombreArchivo = archivo.FileName,
+            RutaBlob = rutaRelativa,
+            ContentType = archivo.ContentType,
+            TamanioBytes = archivo.Length,
+            SubidoEn = DateTime.UtcNow
+        });
+        await _db.SaveChangesAsync();
+
+        TempData["Mensaje"] = "Adjunto subido correctamente.";
+        return RedirectToAction(nameof(Detalle), new { id });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DescargarAdjunto(int id)
+    {
+        // El query filter global ya restringe esto a la empresa actual:
+        // pedir el adjunto de otra empresa por id simplemente no aparece.
+        var adjunto = await _db.Adjuntos.FirstOrDefaultAsync(a => a.Id == id);
+        if (adjunto is null)
+        {
+            return NotFound();
+        }
+
+        var rutaCompleta = Path.Combine(CarpetaAdjuntos, adjunto.RutaBlob);
+        if (!System.IO.File.Exists(rutaCompleta))
+        {
+            return NotFound();
+        }
+
+        var contentType = string.IsNullOrWhiteSpace(adjunto.ContentType) ? "application/octet-stream" : adjunto.ContentType;
+        return PhysicalFile(rutaCompleta, contentType, adjunto.NombreArchivo);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EliminarAdjunto(int id)
+    {
+        var adjunto = await _db.Adjuntos.FirstOrDefaultAsync(a => a.Id == id);
+        if (adjunto is null)
+        {
+            return NotFound();
+        }
+
+        var vencimientoId = adjunto.VencimientoId;
+        var rutaCompleta = Path.Combine(CarpetaAdjuntos, adjunto.RutaBlob);
+
+        _db.Adjuntos.Remove(adjunto);
+        await _db.SaveChangesAsync();
+
+        // El borrado logico (la fila) es lo que importa; si el archivo
+        // fisico ya no esta o falla el borrado, no vale la pena bloquear
+        // al usuario por eso.
+        try
+        {
+            System.IO.File.Delete(rutaCompleta);
+        }
+        catch (IOException)
+        {
+        }
+
+        TempData["Mensaje"] = "Adjunto eliminado.";
+        return RedirectToAction(nameof(Detalle), new { id = vencimientoId });
     }
 
     [HttpGet]
@@ -44,7 +358,7 @@ public class VencimientosController : Controller
         {
             ModelState.AddModelError(nameof(model.CategoriaId), "Elegí una categoría válida.");
         }
-        
+
         if (!ModelState.IsValid)
         {
             model.Categorias = await CategoriasParaSelectAsync();
@@ -80,6 +394,14 @@ public class VencimientosController : Controller
         TempData["Mensaje"] = $"«{item.Nombre}» se agregó correctamente.";
         return RedirectToAction("Index", "Home");
     }
+
+    private static EstadoSemaforo? ParsearEstado(string? estado) => estado?.ToLowerInvariant() switch
+    {
+        "vigente" => EstadoSemaforo.Vigente,
+        "porvencer" => EstadoSemaforo.PorVencer,
+        "vencido" => EstadoSemaforo.Vencido,
+        _ => null
+    };
 
     private async Task<DateOnly> HoyAsync()
     {

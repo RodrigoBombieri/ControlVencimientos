@@ -7,8 +7,8 @@ public class ArmadorDeDashboardTests
 {
     private static readonly DateOnly Hoy = new(2026, 8, 21);
 
-    private static FilaVencimiento Fila(string fecha, string nombre = "Item", int? diasAvisoVenc = null, int diasAvisoCat = 30) =>
-        new(1, 1, nombre, "COD-1", "Categoria", "flame", DateOnly.Parse(fecha), diasAvisoVenc, diasAvisoCat);
+    private static FilaVencimiento Fila(string fecha, string nombre = "Item", int? diasAvisoVenc = null, int diasAvisoCat = 30, int vencimientoId = 1) =>
+        new(vencimientoId, 1, nombre, "COD-1", "Categoria", "flame", DateOnly.Parse(fecha), diasAvisoVenc, diasAvisoCat);
 
     [Fact]
     public void Sin_filas_devuelve_todo_en_cero_y_lista_vacia()
@@ -67,6 +67,18 @@ public class ArmadorDeDashboardTests
 
         Assert.Equal(12, resumen.TotalActivos);   // el contador no se recorta
         Assert.Equal(5, resumen.Proximos.Count);  // la lista si
+    }
+
+    [Fact]
+    public void Pasa_el_VencimientoId_de_la_fila_al_item_del_dashboard()
+    {
+        // La pantalla de inicio linkea cada fila a /Vencimientos/Detalle/{VencimientoId};
+        // si esto se pierde en el mapeo, el link queda roto o apunta a cualquier cosa.
+        var fila = Fila("2026-08-25", vencimientoId: 42);
+
+        var resumen = ArmadorDeDashboard.Armar([fila], Hoy);
+
+        Assert.Equal(42, resumen.Proximos.Single().VencimientoId);
     }
 
     [Fact]
