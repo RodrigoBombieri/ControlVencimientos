@@ -22,5 +22,8 @@ public class DetalleVencimientoViewModel
     public int DiasRestantes { get; init; }
     public DateTime CreadoEn { get; init; }
 
+    /// <summary>Si este vencimiento ya fue renovado, el Id del que lo reemplazó.</summary>
+    public int? RenovadoPorVencimientoId { get; init; }
+
     public IReadOnlyList<Adjunto> Adjuntos { get; init; } = [];
 }

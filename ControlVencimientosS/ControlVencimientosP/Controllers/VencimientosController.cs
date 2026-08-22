@@ -110,10 +110,110 @@ public class VencimientosController : Controller
             EstadoSemaforo = CalculadoraDeEstado.Calcular(vencimiento.FechaVencimiento, diasAviso, hoy),
             DiasRestantes = CalculadoraDeEstado.DiasRestantes(vencimiento.FechaVencimiento, hoy),
             CreadoEn = vencimiento.CreadoEn,
+            RenovadoPorVencimientoId = vencimiento.RenovadoPorVencimientoId,
             Adjuntos = vencimiento.Adjuntos.OrderByDescending(a => a.SubidoEn).ToList()
         };
 
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Renovar(int id)
+    {
+        var anterior = await _db.Vencimientos
+            .Include(v => v.Item!).ThenInclude(i => i!.Categoria)
+            .FirstOrDefaultAsync(v => v.Id == id);
+
+        if (anterior is null)
+        {
+            return NotFound();
+        }
+
+        // Solo tiene sentido renovar el vigente de un item: uno que ya esta
+        // anulado o ya fue renovado no admite "renovarse" de nuevo.
+        if (anterior.Estado != EstadoVencimiento.Activo)
+        {
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        var model = new RenovarVencimientoViewModel
+        {
+            VencimientoId = anterior.Id,
+            ItemNombre = anterior.Item!.Nombre,
+            ItemCodigo = anterior.Item.Codigo,
+            CategoriaNombre = anterior.Item.Categoria!.Nombre,
+            FechaVencimientoAnterior = anterior.FechaVencimiento,
+            FechaVencimiento = (await HoyAsync()).ToString("yyyy-MM-dd"),
+            Monto = anterior.Monto
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Renovar(int id, RenovarVencimientoViewModel model)
+    {
+        var anterior = await _db.Vencimientos
+            .Include(v => v.Item!).ThenInclude(i => i!.Categoria)
+            .FirstOrDefaultAsync(v => v.Id == id);
+
+        if (anterior is null)
+        {
+            return NotFound();
+        }
+
+        if (anterior.Estado != EstadoVencimiento.Activo)
+        {
+            return RedirectToAction(nameof(Detalle), new { id });
+        }
+
+        DateOnly fechaVencimiento = default;
+        if (string.IsNullOrWhiteSpace(model.FechaVencimiento) ||
+            !DateOnly.TryParseExact(model.FechaVencimiento, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out fechaVencimiento))
+        {
+            ModelState.AddModelError(nameof(model.FechaVencimiento), "La fecha no es válida.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            model.VencimientoId = anterior.Id;
+            model.ItemNombre = anterior.Item!.Nombre;
+            model.ItemCodigo = anterior.Item.Codigo;
+            model.CategoriaNombre = anterior.Item.Categoria!.Nombre;
+            model.FechaVencimientoAnterior = anterior.FechaVencimiento;
+            return View(model);
+        }
+
+        // Dos SaveChanges a proposito, en ese orden: primero se marca el
+        // anterior como Renovado y se guarda; recien despues se inserta el
+        // nuevo Activo. Si se hiciera todo junto en un solo SaveChanges, el
+        // orden en que EF ejecuta los statements no esta garantizado, y se
+        // puede terminar insertando el nuevo vencimiento Activo mientras el
+        // anterior todavia sigue Activo en la base — lo que viola
+        // UX_Vencimientos_UnoActivoPorItem (un solo activo por item).
+        anterior.Estado = EstadoVencimiento.Renovado;
+        await _db.SaveChangesAsync();
+
+        var nuevo = new Vencimiento
+        {
+            ItemId = anterior.ItemId,
+            FechaVencimiento = fechaVencimiento,
+            Monto = model.Monto,
+            CreadoPorUsuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+            CreadoEn = DateTime.UtcNow
+        };
+
+        // Se linkea por navegacion, no por el Id escalar: el Id de "nuevo"
+        // todavia no existe en este punto (lo genera el INSERT), y seteando
+        // la navegacion EF arma la relacion sola despues de insertarlo, en
+        // el mismo SaveChanges.
+        anterior.RenovadoPor = nuevo;
+        _db.Vencimientos.Add(nuevo);
+        await _db.SaveChangesAsync();
+
+        TempData["Mensaje"] = $"«{anterior.Item!.Nombre}» se renovó correctamente.";
+        return RedirectToAction(nameof(Detalle), new { id = nuevo.Id });
     }
 
     [HttpGet]

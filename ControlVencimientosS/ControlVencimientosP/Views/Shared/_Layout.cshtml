@@ -26,7 +26,9 @@
 <body>
 @if (User.Identity?.IsAuthenticated == true)
 {
-    var nombre = User.Identity!.Name ?? "";
+    var nombre = User.FindFirst(UsuarioClaimsPrincipalFactory.TipoClaimNombreCompleto)?.Value
+        ?? User.Identity!.Name
+        ?? "";
     var iniciales = (nombre.Length >= 2 ? nombre[..2] : nombre).ToUpperInvariant();
     var controladorActual = ViewContext.RouteData.Values["controller"]?.ToString();
 

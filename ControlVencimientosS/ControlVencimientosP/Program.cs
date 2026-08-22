@@ -80,7 +80,8 @@ builder.Services
         opciones.Lockout.MaxFailedAccessAttempts = 10;
     })
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddClaimsPrincipalFactory<UsuarioClaimsPrincipalFactory>();
 
 builder.Services.ConfigureApplicationCookie(opciones =>
 {

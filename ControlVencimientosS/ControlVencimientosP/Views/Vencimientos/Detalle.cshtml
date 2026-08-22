@@ -78,13 +78,18 @@
                   onsubmit="return confirm('¿Anular este vencimiento? No se puede deshacer.');">
                 <button type="submit" class="cv-btn-ghost">Anular</button>
             </form>
-            <a class="cv-btn-primary" asp-action="Editar" asp-route-id="@Model.VencimientoId">Editar</a>
+            <a class="cv-btn-ghost" asp-action="Editar" asp-route-id="@Model.VencimientoId">Editar</a>
+            <a class="cv-btn-primary" asp-action="Renovar" asp-route-id="@Model.VencimientoId">Renovar</a>
         </div>
     }
     else
     {
         <p class="cv-hint" style="padding: 0 18px 18px;">
             Este vencimiento está @(Model.Estado == EstadoVencimiento.Anulado ? "anulado" : "renovado") y no admite cambios.
+            @if (Model.Estado == EstadoVencimiento.Renovado && Model.RenovadoPorVencimientoId is not null)
+            {
+                <a asp-action="Detalle" asp-route-id="@Model.RenovadoPorVencimientoId">Ver la renovación →</a>
+            }
         </p>
     }
 </div>
