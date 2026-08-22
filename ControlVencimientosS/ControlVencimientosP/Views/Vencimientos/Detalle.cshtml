@@ -79,7 +79,10 @@
                 <button type="submit" class="cv-btn-ghost">Anular</button>
             </form>
             <a class="cv-btn-ghost" asp-action="Editar" asp-route-id="@Model.VencimientoId">Editar</a>
-            <a class="cv-btn-primary" asp-action="Renovar" asp-route-id="@Model.VencimientoId">Renovar</a>
+            @if (Model.EstadoSemaforo != EstadoSemaforo.Vigente)
+            {
+                <a class="cv-btn-primary" asp-action="Renovar" asp-route-id="@Model.VencimientoId">Renovar</a>
+            }
         </div>
     }
     else

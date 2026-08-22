@@ -364,3 +364,7 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
   font: inherit; font-size: 12.5px; color: var(--cv-text-secondary);
   flex: 1 1 240px; min-width: 0;
 }
+
+/* ---------- Acciones dentro de una fila de tabla (ej: Renovar en el listado) ---------- */
+.cv-table-actions { text-align: right; white-space: nowrap; }
+.cv-table-actions .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }

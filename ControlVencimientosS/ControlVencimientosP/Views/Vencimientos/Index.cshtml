@@ -57,6 +57,7 @@
                     <th>Ubicación</th>
                     <th>Vence</th>
                     <th>Estado</th>
+                    <th class="cv-table-actions"></th>
                 </tr>
             </thead>
             <tbody>
@@ -79,6 +80,12 @@
                             <div class="cv-date-rel">@PresentacionSemaforo.Relativo(item.DiasRestantes)</div>
                         </td>
                         <td><partial name="_BadgeEstado" model="item.Estado" /></td>
+                        <td class="cv-table-actions">
+                            @if (item.Estado != EstadoSemaforo.Vigente)
+                            {
+                                <a class="cv-btn-ghost" asp-action="Renovar" asp-route-id="@item.VencimientoId">Renovar</a>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>
