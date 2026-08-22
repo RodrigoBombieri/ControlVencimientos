@@ -1,5 +1,6 @@
 using ControlVencimientosP.Data;
 using ControlVencimientosP.Domain;
+using ControlVencimientosP.Jobs;
 using ControlVencimientosP.Tenancy;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -92,12 +93,21 @@ builder.Services.ConfigureApplicationCookie(opciones =>
 });
 
 // ---------------------------------------------------------------------------
+// Motor de avisos (SMTP + el job)
+// ---------------------------------------------------------------------------
+// Los valores de "Smtp" en appsettings.json quedan vacios a proposito: las
+// credenciales reales entran por User Secrets en desarrollo o por la
+// configuracion del hosting en produccion, nunca commiteadas.
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddTransient<IEnviadorDeMail, EnviadorDeMailSmtp>();
+builder.Services.AddScoped<JobDeAvisos>();
+
+// ---------------------------------------------------------------------------
 // Hangfire (trabajos en segundo plano)
 // ---------------------------------------------------------------------------
-// Por ahora solo la plomeria: storage en la misma base SQL Server y el
-// dashboard protegido. El motor de avisos automaticos (el job que de verdad
-// recorre los vencimientos y manda los emails) todavia no existe; se
-// registra aca el dia que se construya, con RecurringJob.AddOrUpdate.
+// Storage en la misma base SQL Server y el dashboard protegido. El recurring
+// job se registra abajo, despues de app.Build(), porque IRecurringJobManager
+// sale del contenedor de DI ya armado.
 builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
@@ -109,6 +119,19 @@ var app = builder.Build();
 
 // Roles y primer administrador. Es idempotente: si ya existen, no hace nada.
 await SeedIdentidad.AplicarAsync(app.Services);
+
+// El job corre cada hora en punto y adentro decide, por empresa, si es su
+// hora de envio configurada (ver JobDeAvisos): un cron horario alcanza sin
+// tener que reprogramar el recurring job cada vez que alguien cambia la hora
+// en Configuracion.
+using (var scopeArranque = app.Services.CreateScope())
+{
+    var recurringJobs = scopeArranque.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    recurringJobs.AddOrUpdate<JobDeAvisos>(
+        "avisos-automaticos",
+        job => job.EjecutarAsync(CancellationToken.None),
+        "0 * * * *");
+}
 
 if (!app.Environment.IsDevelopment())
 {

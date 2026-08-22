@@ -28,6 +28,8 @@
             <b>@Model.Vencidos @(Model.Vencidos == 1 ? "vencimiento está vencido" : "vencimientos están vencidos").</b>
             Revisalos antes de que se acumulen.
         </div>
+        <div class="cv-spacer"></div>
+        <a class="cv-btn-ghost cv-alert-cta" asp-controller="Vencimientos" asp-action="Index">Ver ahora</a>
     </div>
 }
 
@@ -87,10 +89,15 @@
                     {
                         <tr>
                             <td>
-                                <div class="cv-item-name">
-                                    <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId">@item.Nombre</a>
+                                <div class="cv-item-name-row">
+                                    <span class="cv-cat-icon">@item.CategoriaIcono</span>
+                                    <div>
+                                        <div class="cv-item-name">
+                                            <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId">@item.Nombre</a>
+                                        </div>
+                                        <div class="cv-item-meta">@item.CategoriaNombre@(item.Codigo is null ? "" : $" · {item.Codigo}")</div>
+                                    </div>
                                 </div>
-                                <div class="cv-item-meta">@item.CategoriaNombre@(item.Codigo is null ? "" : $" · {item.Codigo}")</div>
                             </td>
                             <td>
                                 <div class="cv-date-main">@item.FechaVencimiento.ToString("dd/MM/yyyy")</div>
@@ -100,7 +107,7 @@
                             <td class="cv-table-actions">
                                 @if (item.Estado != EstadoSemaforo.Vigente)
                                 {
-                                    <a class="cv-btn-ghost" asp-controller="Vencimientos" asp-action="Renovar" asp-route-id="@item.VencimientoId">Renovar</a>
+                                    <a class="cv-btn-renew" asp-controller="Vencimientos" asp-action="Renovar" asp-route-id="@item.VencimientoId">Renovar</a>
                                 }
                             </td>
                         </tr>
@@ -182,7 +189,7 @@
                             }
                         </div>
                     }
-                    <a class="cv-btn-ghost cv-aviso-cta" asp-controller="Vencimientos" asp-action="Index">Ver y renovar</a>
+                    <a class="cv-btn-renew cv-aviso-cta" asp-controller="Vencimientos" asp-action="Index">Ver y renovar</a>
                 </div>
             </div>
         }

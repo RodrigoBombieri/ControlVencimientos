@@ -98,7 +98,7 @@
                 </div>
 
                 <div class="cv-form-actions" style="padding: 14px 18px;">
-                    <button type="submit" class="cv-btn-primary">Guardar avisos</button>
+                    <button type="submit" class="cv-btn-success">Guardar avisos</button>
                 </div>
             </form>
         </div>
@@ -135,10 +135,10 @@
                             {
                                 <span class="cv-badge cv-b-crit">Inactivo</span>
                             }
-                            <a class="cv-btn-ghost" asp-action="EditarDestinatario" asp-route-id="@d.Id">Editar</a>
+                            <a class="cv-btn-warning" asp-action="EditarDestinatario" asp-route-id="@d.Id">Editar</a>
                             <form asp-action="ToggleDestinatario" asp-route-id="@d.Id" method="post">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="cv-btn-ghost">@(d.Activo ? "Desactivar" : "Activar")</button>
+                                <button type="submit" class="@(d.Activo ? "cv-btn-danger" : "cv-btn-success")">@(d.Activo ? "Desactivar" : "Activar")</button>
                             </form>
                         </div>
                     </div>
@@ -163,15 +163,18 @@
             @foreach (var c in Model.Categorias)
             {
                 <div class="cv-cfg-row">
-                    <div>
-                        <div class="cv-cfg-name">@c.Nombre@(c.Activa ? "" : " (inactiva)")</div>
-                        <div class="cv-cfg-desc">@c.CantidadItems @(c.CantidadItems == 1 ? "ítem" : "ítems") · aviso @c.DiasAvisoDefault días antes</div>
+                    <div class="cv-cfg-name-row">
+                        <span class="cv-cat-icon">@c.Icono</span>
+                        <div>
+                            <div class="cv-cfg-name">@c.Nombre@(c.Activa ? "" : " (inactiva)")</div>
+                            <div class="cv-cfg-desc">@c.CantidadItems @(c.CantidadItems == 1 ? "ítem" : "ítems") · aviso @c.DiasAvisoDefault días antes</div>
+                        </div>
                     </div>
                     <div class="cv-cfg-actions">
-                        <a class="cv-btn-ghost" asp-action="EditarCategoria" asp-route-id="@c.Id">Editar</a>
+                        <a class="cv-btn-warning" asp-action="EditarCategoria" asp-route-id="@c.Id">Editar</a>
                         <form asp-action="ToggleCategoria" asp-route-id="@c.Id" method="post">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="cv-btn-ghost">@(c.Activa ? "Desactivar" : "Activar")</button>
+                            <button type="submit" class="@(c.Activa ? "cv-btn-danger" : "cv-btn-success")">@(c.Activa ? "Desactivar" : "Activar")</button>
                         </form>
                     </div>
                 </div>

@@ -12,8 +12,8 @@ public class Categoria : IEntidadDeEmpresa
 
     public string Nombre { get; set; } = string.Empty;
 
-    /// <summary>Nombre del icono de Lucide. Ej: "flame", "shield", "graduation-cap".</summary>
-    public string Icono { get; set; } = "file-text";
+    /// <summary>Un emoji, elegido de <see cref="Services.ArmadorDeConfiguracion.IconosDisponibles"/>.</summary>
+    public string Icono { get; set; } = "📄";
 
     /// <summary>Color hex para la UI. No se usa para el semaforo.</summary>
     public string Color { get; set; } = "#2a78d6";

@@ -60,6 +60,21 @@ public class ArmadorDeConfiguracionTests
         Assert.Equal("", resultado.HitosDias);
     }
 
+    [Fact]
+    public void Acepta_un_icono_del_preset()
+    {
+        Assert.Equal("🧯", ArmadorDeConfiguracion.ArmarIcono("🧯"));
+    }
+
+    [Theory]
+    [InlineData((string?)null)]
+    [InlineData("")]
+    [InlineData("🐙")]
+    public void Cae_al_default_si_el_icono_no_esta_en_el_preset(string? posteado)
+    {
+        Assert.Equal(ArmadorDeConfiguracion.IconoPorDefecto, ArmadorDeConfiguracion.ArmarIcono(posteado));
+    }
+
     private static FilaDestinatario Fila(int id, string nombre, string? email, string? telefono, IReadOnlyList<int> categorias, bool activo = true) =>
         new(id, nombre, email, telefono, categorias, activo);
 

@@ -177,6 +177,7 @@ body:has(.cv-app) {
 .cv-alert svg { color: var(--cv-critical); flex-shrink: 0; }
 .cv-alert-text { font-size: 13.5px; font-weight: 500; }
 .cv-alert-text b { font-weight: 640; }
+.cv-alert-cta { flex-shrink: 0; }
 
 /* ---------- Tiles (contadores del semaforo) ---------- */
 .cv-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
@@ -241,9 +242,19 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 /* ---------- Estado vacio ---------- */
 .cv-empty { padding: 40px 18px; text-align: center; color: var(--cv-text-muted); font-size: 13.5px; }
 
-/* ---------- Botones ---------- */
+/* ---------- Botones ----------
+   Un color por función, no por pantalla: Guardar siempre es verde, Cancelar
+   y Anular siempre son rojos, Editar siempre es ámbar, Renovar siempre es
+   violeta (el mismo tono que ya usaba la tile "Renovados este mes"), y todo
+   lo demás (navegación, acciones secundarias) es el gris neutro de siempre.
+   Los cuatro colores nuevos reusan las variables del semáforo: no se agregó
+   ningún valor de color que no existiera ya en :root. */
 .cv-btn-primary,
-.cv-btn-ghost {
+.cv-btn-ghost,
+.cv-btn-success,
+.cv-btn-danger,
+.cv-btn-warning,
+.cv-btn-renew {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 9px 16px; border-radius: 9px;
   font: inherit; font-size: 13.5px; font-weight: 560;
@@ -255,6 +266,16 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 .cv-btn-primary:hover { filter: brightness(0.93); }
 .cv-btn-ghost { background: var(--cv-surface-1); color: var(--cv-text-secondary); border-color: var(--cv-border); }
 .cv-btn-ghost:hover { background: var(--cv-plane); color: var(--cv-text-primary); }
+.cv-btn-success { background: var(--cv-good); color: #fff; border-color: var(--cv-good); }
+.cv-btn-success:hover { filter: brightness(0.92); }
+.cv-btn-danger { background: var(--cv-critical); color: #fff; border-color: var(--cv-critical); }
+.cv-btn-danger:hover { filter: brightness(0.92); }
+/* Texto oscuro fijo, no var(--cv-text-primary): el ámbar no cambia entre
+   temas, así que el texto tampoco puede cambiar o pierde contraste en oscuro. */
+.cv-btn-warning { background: var(--cv-warning); color: #2b1c00; border-color: var(--cv-warning); }
+.cv-btn-warning:hover { filter: brightness(0.94); }
+.cv-btn-renew { background: var(--cv-renew); color: #fff; border-color: var(--cv-renew); }
+.cv-btn-renew:hover { filter: brightness(0.92); }
 
 /* ---------- Formulario de alta rapida ---------- */
 .cv-form-card {
@@ -370,7 +391,8 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 
 /* ---------- Acciones dentro de una fila de tabla (ej: Renovar en el listado) ---------- */
 .cv-table-actions { text-align: right; white-space: nowrap; }
-.cv-table-actions .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }
+.cv-table-actions .cv-btn-ghost,
+.cv-table-actions .cv-btn-renew { padding: 6px 12px; font-size: 12.5px; }
 
 .cv-table-footer {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -498,8 +520,12 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 
 /* ---------- Configuración: destinatarios y categorías ---------- */
 .cv-cfg-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.cv-cfg-actions .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }
+.cv-cfg-actions .cv-btn-ghost,
+.cv-cfg-actions .cv-btn-warning,
+.cv-cfg-actions .cv-btn-success,
+.cv-cfg-actions .cv-btn-danger { padding: 6px 12px; font-size: 12.5px; }
 .cv-cfg-actions form { margin: 0; }
+.cv-cfg-name-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
 .cv-checklist {
   display: flex; flex-direction: column; gap: 9px; max-height: 240px; overflow-y: auto;
@@ -508,3 +534,28 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 .cv-checklist-vacio { font-size: 12.5px; color: var(--cv-text-muted); }
 .cv-checklist label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
 .cv-checklist input { margin: 0; }
+
+/* ---------- Ícono de categoría (dashboard, listado, configuración) ---------- */
+.cv-cat-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 9px; border: 1px solid var(--cv-border); background: var(--cv-plane);
+  font-size: 16px; line-height: 1;
+}
+.cv-item-name-row { display: flex; align-items: center; gap: 11px; }
+
+/* Selector de ícono al crear/editar una categoría: mismo mecanismo sin JS
+   que .cv-switch y .cv-pill-check (input oculto + <span> que cambia con
+   :checked), pero de a uno (radio, no checkbox) y en grilla de cuadrados
+   en vez de pills, porque el contenido es un emoji, no una palabra. */
+.cv-icon-grid { display: flex; flex-wrap: wrap; gap: 6px; max-width: 400px; }
+.cv-icon-pick { position: relative; cursor: pointer; }
+.cv-icon-pick input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.cv-icon-pick span {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 9px;
+  border: 1px solid var(--cv-border); background: var(--cv-plane);
+  font-size: 18px; transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.cv-icon-pick input:checked + span { border-color: var(--cv-accent); background: var(--cv-surface-1); box-shadow: inset 0 0 0 2px var(--cv-accent); }
+.cv-icon-pick input:focus-visible + span { outline: 2px solid var(--cv-accent); outline-offset: 2px; }

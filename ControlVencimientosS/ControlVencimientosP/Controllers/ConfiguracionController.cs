@@ -200,9 +200,8 @@ public class ConfiguracionController : Controller
         {
             Nombre = model.Nombre.Trim(),
             DiasAvisoDefault = model.DiasAvisoDefault,
-            // Icono y color por defecto, iguales a "Otro" en el seed inicial:
-            // esta pantalla todavía no tiene un selector de ícono/color.
-            Icono = "file-text",
+            Icono = ArmadorDeConfiguracion.ArmarIcono(model.Icono),
+            // El color queda fijo: esta pantalla todavía no tiene un selector de color.
             Color = "#2a78d6",
             Orden = ordenMaximo + 1,
             Activa = true
@@ -227,7 +226,8 @@ public class ConfiguracionController : Controller
         var model = new CategoriaViewModel
         {
             Nombre = categoria.Nombre,
-            DiasAvisoDefault = categoria.DiasAvisoDefault
+            DiasAvisoDefault = categoria.DiasAvisoDefault,
+            Icono = categoria.Icono
         };
 
         return View(model);
@@ -250,6 +250,7 @@ public class ConfiguracionController : Controller
 
         categoria.Nombre = model.Nombre.Trim();
         categoria.DiasAvisoDefault = model.DiasAvisoDefault;
+        categoria.Icono = ArmadorDeConfiguracion.ArmarIcono(model.Icono);
 
         await _db.SaveChangesAsync();
 

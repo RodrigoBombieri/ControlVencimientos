@@ -407,17 +407,17 @@ namespace ControlVencimientosP.Data.Migrations
                 columns: new[] { "Id", "Activa", "Color", "DiasAvisoDefault", "EmpresaId", "Icono", "Nombre", "Orden" },
                 values: new object[,]
                 {
-                    { 1, true, "#2a78d6", 30, 1, "building-2", "Habilitacion", 1 },
-                    { 2, true, "#2a78d6", 60, 1, "shield", "Seguro", 2 },
-                    { 3, true, "#2a78d6", 30, 1, "flame-kindling", "Matafuego", 3 },
-                    { 4, true, "#2a78d6", 30, 1, "shield-plus", "ART", 4 },
-                    { 5, true, "#2a78d6", 30, 1, "graduation-cap", "Capacitacion", 5 },
-                    { 6, true, "#2a78d6", 30, 1, "id-card", "Carnet", 6 },
-                    { 7, true, "#2a78d6", 30, 1, "scroll-text", "Licencia", 7 },
-                    { 8, true, "#2a78d6", 15, 1, "wrench", "Mantenimiento", 8 },
-                    { 9, true, "#2a78d6", 30, 1, "search-check", "Inspeccion", 9 },
-                    { 10, true, "#2a78d6", 60, 1, "file-signature", "Contrato", 10 },
-                    { 11, true, "#2a78d6", 30, 1, "file-text", "Otro", 11 }
+                    { 1, true, "#2a78d6", 30, 1, "🏢", "Habilitacion", 1 },
+                    { 2, true, "#2a78d6", 60, 1, "🛡️", "Seguro", 2 },
+                    { 3, true, "#2a78d6", 30, 1, "🧯", "Matafuego", 3 },
+                    { 4, true, "#2a78d6", 30, 1, "🦺", "ART", 4 },
+                    { 5, true, "#2a78d6", 30, 1, "🎓", "Capacitacion", 5 },
+                    { 6, true, "#2a78d6", 30, 1, "🪪", "Carnet", 6 },
+                    { 7, true, "#2a78d6", 30, 1, "📜", "Licencia", 7 },
+                    { 8, true, "#2a78d6", 15, 1, "🔧", "Mantenimiento", 8 },
+                    { 9, true, "#2a78d6", 30, 1, "🔍", "Inspeccion", 9 },
+                    { 10, true, "#2a78d6", 60, 1, "📄", "Contrato", 10 },
+                    { 11, true, "#2a78d6", 30, 1, "🗂️", "Otro", 11 }
                 });
 
             migrationBuilder.InsertData(

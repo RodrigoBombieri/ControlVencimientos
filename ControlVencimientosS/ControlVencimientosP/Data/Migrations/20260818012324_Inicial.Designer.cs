@@ -164,7 +164,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "building-2",
+                            Icono = "🏢",
                             Nombre = "Habilitacion",
                             Orden = 1
                         },
@@ -175,7 +175,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 60,
                             EmpresaId = 1,
-                            Icono = "shield",
+                            Icono = "🛡️",
                             Nombre = "Seguro",
                             Orden = 2
                         },
@@ -186,7 +186,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "flame-kindling",
+                            Icono = "🧯",
                             Nombre = "Matafuego",
                             Orden = 3
                         },
@@ -197,7 +197,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "shield-plus",
+                            Icono = "🦺",
                             Nombre = "ART",
                             Orden = 4
                         },
@@ -208,7 +208,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "graduation-cap",
+                            Icono = "🎓",
                             Nombre = "Capacitacion",
                             Orden = 5
                         },
@@ -219,7 +219,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "id-card",
+                            Icono = "🪪",
                             Nombre = "Carnet",
                             Orden = 6
                         },
@@ -230,7 +230,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "scroll-text",
+                            Icono = "📜",
                             Nombre = "Licencia",
                             Orden = 7
                         },
@@ -241,7 +241,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 15,
                             EmpresaId = 1,
-                            Icono = "wrench",
+                            Icono = "🔧",
                             Nombre = "Mantenimiento",
                             Orden = 8
                         },
@@ -252,7 +252,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "search-check",
+                            Icono = "🔍",
                             Nombre = "Inspeccion",
                             Orden = 9
                         },
@@ -263,7 +263,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 60,
                             EmpresaId = 1,
-                            Icono = "file-signature",
+                            Icono = "📄",
                             Nombre = "Contrato",
                             Orden = 10
                         },
@@ -274,7 +274,7 @@ namespace ControlVencimientosP.Data.Migrations
                             Color = "#2a78d6",
                             DiasAvisoDefault = 30,
                             EmpresaId = 1,
-                            Icono = "file-text",
+                            Icono = "🗂️",
                             Nombre = "Otro",
                             Orden = 11
                         });

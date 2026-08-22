@@ -65,13 +65,18 @@
                 {
                     <tr>
                         <td>
-                            <div class="cv-item-name">
-                                <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId">@item.Nombre</a>
+                            <div class="cv-item-name-row">
+                                <span class="cv-cat-icon">@item.CategoriaIcono</span>
+                                <div>
+                                    <div class="cv-item-name">
+                                        <a asp-controller="Vencimientos" asp-action="Detalle" asp-route-id="@item.VencimientoId">@item.Nombre</a>
+                                    </div>
+                                    @if (item.Codigo is not null)
+                                    {
+                                        <div class="cv-item-meta">@item.Codigo</div>
+                                    }
+                                </div>
                             </div>
-                            @if (item.Codigo is not null)
-                            {
-                                <div class="cv-item-meta">@item.Codigo</div>
-                            }
                         </td>
                         <td>@item.CategoriaNombre</td>
                         <td>@(item.Ubicacion ?? "—")</td>
@@ -83,7 +88,7 @@
                         <td class="cv-table-actions">
                             @if (item.Estado != EstadoSemaforo.Vigente)
                             {
-                                <a class="cv-btn-ghost" asp-action="Renovar" asp-route-id="@item.VencimientoId">Renovar</a>
+                                <a class="cv-btn-renew" asp-action="Renovar" asp-route-id="@item.VencimientoId">Renovar</a>
                             }
                         </td>
                     </tr>

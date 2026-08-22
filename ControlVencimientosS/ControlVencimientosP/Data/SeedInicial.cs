@@ -46,17 +46,17 @@ public static class SeedInicial
     /// </summary>
     private static Categoria[] Categorias() =>
     [
-        Cat( 1, "Habilitacion",   "building-2",       30),
-        Cat( 2, "Seguro",         "shield",           60),
-        Cat( 3, "Matafuego",      "flame-kindling",   30),
-        Cat( 4, "ART",            "shield-plus",      30),
-        Cat( 5, "Capacitacion",   "graduation-cap",   30),
-        Cat( 6, "Carnet",         "id-card",          30),
-        Cat( 7, "Licencia",       "scroll-text",      30),
-        Cat( 8, "Mantenimiento",  "wrench",           15),
-        Cat( 9, "Inspeccion",     "search-check",     30),
-        Cat(10, "Contrato",       "file-signature",   60),
-        Cat(11, "Otro",           "file-text",        30)
+        Cat( 1, "Habilitacion",   "🏢",   30),
+        Cat( 2, "Seguro",         "🛡️",   60),
+        Cat( 3, "Matafuego",      "🧯",   30),
+        Cat( 4, "ART",            "🦺",   30),
+        Cat( 5, "Capacitacion",   "🎓",   30),
+        Cat( 6, "Carnet",         "🪪",   30),
+        Cat( 7, "Licencia",       "📜",   30),
+        Cat( 8, "Mantenimiento",  "🔧",   15),
+        Cat( 9, "Inspeccion",     "🔍",   30),
+        Cat(10, "Contrato",       "📄",   60),
+        Cat(11, "Otro",           "🗂️",   30)
     ];
 
     private static Categoria Cat(int id, string nombre, string icono, int diasAviso) => new()

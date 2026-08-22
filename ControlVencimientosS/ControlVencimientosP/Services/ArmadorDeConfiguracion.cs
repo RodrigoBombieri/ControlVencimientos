@@ -29,6 +29,32 @@ public static class ArmadorDeConfiguracion
     public static readonly IReadOnlyList<int> HitosDisponibles = [90, 60, 45, 30, 15, 7, 3, 1, 0];
 
     /// <summary>
+    /// El preset fijo de emojis que se puede elegir como ícono de una
+    /// categoría. Un selector libre (subir una imagen, un color picker de
+    /// SVGs) es de otro presupuesto; con un set fijo alcanza para distinguir
+    /// categorías a simple vista sin agregar ni una dependencia nueva.
+    /// </summary>
+    public static readonly IReadOnlyList<string> IconosDisponibles =
+    [
+        "🏢", "🧯", "🛡️", "🦺", "🎓", "🪪", "📜", "🔧", "🔍",
+        "📄", "🗂️", "⚡", "🚗", "💧", "🏥", "🧪", "🛗", "❄️", "📦", "🔒", "🔥"
+    ];
+
+    /// <summary>El ícono con el que arranca una categoría nueva antes de que el usuario elija uno.</summary>
+    public const string IconoPorDefecto = "📄";
+
+    /// <summary>
+    /// Valida el ícono que posteó el formulario. Si viene vacío o con algo
+    /// fuera del preset (alguien posteando a mano), cae al default en vez de
+    /// rechazar el guardado entero: a diferencia de los hitos, el ícono es
+    /// cosmético, no vale la pena bloquear el formulario por esto.
+    /// </summary>
+    public static string ArmarIcono(string? seleccionado)
+        => seleccionado is not null && IconosDisponibles.Contains(seleccionado)
+            ? seleccionado
+            : IconoPorDefecto;
+
+    /// <summary>
     /// Arma el <see cref="ConfiguracionAvisos.HitosDias"/> a partir de los
     /// dias que tildo el usuario en el checklist de pills. Se descarta
     /// cualquier valor que no este en <see cref="HitosDisponibles"/> (alguien
