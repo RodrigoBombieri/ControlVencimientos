@@ -47,6 +47,7 @@ public class ResumenDashboard
     public int Vencidos { get; init; }
     public IReadOnlyList<ItemDashboard> Proximos { get; init; } = [];
     public IReadOnlyList<MesDashboard> PorMes { get; init; } = [];
+    public int RenovadosEsteMes { get; init; }
 
     /// <summary>
     /// Se completa aparte, despues de <see cref="ArmadorDeDashboard.Armar"/>:
@@ -67,7 +68,11 @@ public class ResumenDashboard
 public static class ArmadorDeDashboard
 {
     public static ResumenDashboard Armar(
-        IEnumerable<FilaVencimiento> filas, DateOnly hoy, int maxProximos = 8, int mesesGrafico = 6)
+        IEnumerable<FilaVencimiento> filas,
+        IEnumerable<DateTime> fechasDeRenovacion,
+        DateOnly hoy,
+        int maxProximos = 8,
+        int mesesGrafico = 6)
     {
         var items = filas
             .Select(f =>
@@ -97,7 +102,14 @@ public static class ArmadorDeDashboard
                 .OrderBy(i => i.FechaVencimiento)
                 .Take(maxProximos)
                 .ToList(),
-            PorMes = ArmarPorMes(items, hoy, mesesGrafico)
+            PorMes = ArmarPorMes(items, hoy, mesesGrafico),
+            // Comparacion por Year/Month contra el CreadoEn en UTC del vencimiento
+            // que reemplazo al anterior: mismo criterio de simplificacion que el
+            // resto del dashboard (PorMes tambien compara Year/Month sin pasar por
+            // la zona horaria de la empresa) — un renovado a las 23:58 UTC puede
+            // contarse en el mes equivocado en algun huso, pero no vale la pena la
+            // complejidad extra para ese caso borde.
+            RenovadosEsteMes = fechasDeRenovacion.Count(f => f.Year == hoy.Year && f.Month == hoy.Month)
         };
     }
 

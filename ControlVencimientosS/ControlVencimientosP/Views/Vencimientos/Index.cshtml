@@ -90,5 +90,30 @@
                 }
             </tbody>
         </table>
+
+        @if (Model.TotalPaginas > 1)
+        {
+            <div class="cv-pagination">
+                <span>Página @Model.PaginaActual de @Model.TotalPaginas · @Model.TotalFiltrado ítems</span>
+                <div class="cv-pagination-nav">
+                    @if (Model.PaginaActual > 1)
+                    {
+                        <a class="cv-btn-ghost" asp-action="Index"
+                           asp-route-estado="@Model.FiltroEstado?.ToString().ToLowerInvariant()"
+                           asp-route-categoriaId="@Model.FiltroCategoriaId"
+                           asp-route-q="@Model.FiltroTexto"
+                           asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
+                    }
+                    @if (Model.PaginaActual < Model.TotalPaginas)
+                    {
+                        <a class="cv-btn-ghost" asp-action="Index"
+                           asp-route-estado="@Model.FiltroEstado?.ToString().ToLowerInvariant()"
+                           asp-route-categoriaId="@Model.FiltroCategoriaId"
+                           asp-route-q="@Model.FiltroTexto"
+                           asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+                    }
+                </div>
+            </div>
+        }
     }
 </div>

@@ -38,7 +38,16 @@ namespace ControlVencimientosP.Controllers
                     v.Item.Categoria.DiasAvisoDefault))
                 .ToListAsync();
 
-            var resumen = ArmadorDeDashboard.Armar(filas, hoy);
+            // Vencimientos que ya fueron reemplazados por una renovacion: para
+            // saber CUANDO se renovaron hay que mirar el CreadoEn del que lo
+            // reemplazo, no el propio (que sigue teniendo su fecha de vencimiento
+            // original). No usa .Activos(): son justo los que ya no lo estan.
+            var fechasDeRenovacion = await _db.Vencimientos
+                .Where(v => v.Estado == EstadoVencimiento.Renovado && v.RenovadoPorVencimientoId != null)
+                .Select(v => v.RenovadoPor!.CreadoEn)
+                .ToListAsync();
+
+            var resumen = ArmadorDeDashboard.Armar(filas, fechasDeRenovacion, hoy);
 
             var config = await _db.ConfiguracionesAvisos.FindAsync(_tenant.EmpresaId);
             var destinatarios = await _db.Destinatarios.CountAsync(d => d.Activo);

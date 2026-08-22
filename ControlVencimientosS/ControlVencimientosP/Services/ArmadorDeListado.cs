@@ -84,4 +84,16 @@ public static class ArmadorDeListado
 
         return resultado.ToList();
     }
+
+    /// <summary>
+    /// Recorta a una sola página, ya sobre el resultado filtrado. La página
+    /// nunca es menor a 1: un valor raro en la URL (0, negativo) simplemente
+    /// se trata como la primera página en vez de romper.
+    /// </summary>
+    public static IReadOnlyList<FilaVencimientoListado> Paginar(
+        IReadOnlyList<FilaVencimientoListado> items, int pagina, int itemsPorPagina)
+    {
+        var paginaSegura = Math.Max(1, pagina);
+        return items.Skip((paginaSegura - 1) * itemsPorPagina).Take(itemsPorPagina).ToList();
+    }
 }

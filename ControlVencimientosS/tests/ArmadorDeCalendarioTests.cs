@@ -127,4 +127,25 @@ public class ArmadorDeCalendarioTests
 
         Assert.All(resumen.Semanas.SelectMany(s => s), dia => Assert.Empty(dia.Items));
     }
+
+    [Fact]
+    public void RangoDeGrilla_coincide_con_los_bordes_de_la_grilla_armada()
+    {
+        // Mismo mes que "La_grilla_arranca_en_lunes_y_termina_en_domingo":
+        // el rango que usa el controller para la consulta tiene que ser
+        // exactamente lo que despues pinta Armar, ni un dia mas ni menos.
+        var (inicio, fin) = ArmadorDeCalendario.RangoDeGrilla(2026, 8);
+
+        Assert.Equal(new DateOnly(2026, 7, 27), inicio);
+        Assert.Equal(new DateOnly(2026, 9, 6), fin);
+    }
+
+    [Fact]
+    public void RangoDeGrilla_sin_relleno_cuando_el_mes_ya_calza_justo()
+    {
+        var (inicio, fin) = ArmadorDeCalendario.RangoDeGrilla(2026, 6);
+
+        Assert.Equal(new DateOnly(2026, 6, 1), inicio);
+        Assert.Equal(DayOfWeek.Monday, inicio.DayOfWeek);
+    }
 }

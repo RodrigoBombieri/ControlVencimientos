@@ -13,7 +13,7 @@ public class ArmadorDeDashboardTests
     [Fact]
     public void Sin_filas_devuelve_todo_en_cero_y_lista_vacia()
     {
-        var resumen = ArmadorDeDashboard.Armar([], Hoy);
+        var resumen = ArmadorDeDashboard.Armar([], [], Hoy);
 
         Assert.Equal(0, resumen.TotalActivos);
         Assert.Equal(0, resumen.Vigentes);
@@ -33,7 +33,7 @@ public class ArmadorDeDashboardTests
             Fila("2026-12-01"),   // vigente
         };
 
-        var resumen = ArmadorDeDashboard.Armar(filas, Hoy);
+        var resumen = ArmadorDeDashboard.Armar(filas, [], Hoy);
 
         Assert.Equal(3, resumen.TotalActivos);
         Assert.Equal(1, resumen.Vencidos);
@@ -51,7 +51,7 @@ public class ArmadorDeDashboardTests
             Fila("2026-08-25", "El de agosto"),
         };
 
-        var resumen = ArmadorDeDashboard.Armar(filas, Hoy);
+        var resumen = ArmadorDeDashboard.Armar(filas, [], Hoy);
 
         Assert.Equal(["El vencido", "El de agosto", "El de diciembre"], resumen.Proximos.Select(p => p.Nombre));
     }
@@ -63,7 +63,7 @@ public class ArmadorDeDashboardTests
             .Select(i => Fila(Hoy.AddDays(i).ToString("yyyy-MM-dd"), $"Item {i}"))
             .ToArray();
 
-        var resumen = ArmadorDeDashboard.Armar(filas, Hoy, maxProximos: 5);
+        var resumen = ArmadorDeDashboard.Armar(filas, [], Hoy, maxProximos: 5);
 
         Assert.Equal(12, resumen.TotalActivos);   // el contador no se recorta
         Assert.Equal(5, resumen.Proximos.Count);  // la lista si
@@ -76,7 +76,7 @@ public class ArmadorDeDashboardTests
         // si esto se pierde en el mapeo, el link queda roto o apunta a cualquier cosa.
         var fila = Fila("2026-08-25", vencimientoId: 42);
 
-        var resumen = ArmadorDeDashboard.Armar([fila], Hoy);
+        var resumen = ArmadorDeDashboard.Armar([fila], [], Hoy);
 
         Assert.Equal(42, resumen.Proximos.Single().VencimientoId);
     }
@@ -88,7 +88,7 @@ public class ArmadorDeDashboardTests
         // pero el vencimiento pisa con 5 y todavia no entra en el aviso.
         var fila = Fila(Hoy.AddDays(10).ToString("yyyy-MM-dd"), diasAvisoVenc: 5, diasAvisoCat: 30);
 
-        var resumen = ArmadorDeDashboard.Armar([fila], Hoy);
+        var resumen = ArmadorDeDashboard.Armar([fila], [], Hoy);
 
         Assert.Equal(1, resumen.Vigentes);
         Assert.Equal(0, resumen.PorVencer);
@@ -105,7 +105,7 @@ public class ArmadorDeDashboardTests
             Fila("2027-06-01"),   // fuera de la ventana de 6 meses: no cuenta
         };
 
-        var resumen = ArmadorDeDashboard.Armar(filas, Hoy);
+        var resumen = ArmadorDeDashboard.Armar(filas, [], Hoy);
 
         Assert.Equal(6, resumen.PorMes.Count);
         Assert.Equal(new MesDashboard(2026, 8, 2), resumen.PorMes[0]);
@@ -119,13 +119,37 @@ public class ArmadorDeDashboardTests
     {
         var filas = new[] { Fila("2027-01-15") };   // mes 6 si se piden 6, afuera si se piden 3
 
-        var conSeis = ArmadorDeDashboard.Armar(filas, Hoy, mesesGrafico: 6);
-        var conTres = ArmadorDeDashboard.Armar(filas, Hoy, mesesGrafico: 3);
+        var conSeis = ArmadorDeDashboard.Armar(filas, [], Hoy, mesesGrafico: 6);
+        var conTres = ArmadorDeDashboard.Armar(filas, [], Hoy, mesesGrafico: 3);
 
         Assert.Equal(6, conSeis.PorMes.Count);
         Assert.Equal(1, conSeis.PorMes[^1].Cantidad);
 
         Assert.Equal(3, conTres.PorMes.Count);
         Assert.Equal(0, conTres.PorMes.Sum(m => m.Cantidad));
+    }
+
+    [Fact]
+    public void Sin_renovaciones_el_contador_del_mes_da_cero()
+    {
+        var resumen = ArmadorDeDashboard.Armar([], [], Hoy);
+
+        Assert.Equal(0, resumen.RenovadosEsteMes);
+    }
+
+    [Fact]
+    public void Cuenta_solo_las_renovaciones_del_mes_de_hoy()
+    {
+        var fechas = new[]
+        {
+            new DateTime(2026, 8, 3),    // agosto, mismo mes que Hoy
+            new DateTime(2026, 8, 20),   // agosto tambien
+            new DateTime(2026, 7, 30),   // julio: no cuenta
+            new DateTime(2027, 8, 3),    // agosto pero de otro año: no cuenta
+        };
+
+        var resumen = ArmadorDeDashboard.Armar([], fechas, Hoy);
+
+        Assert.Equal(2, resumen.RenovadosEsteMes);
     }
 }

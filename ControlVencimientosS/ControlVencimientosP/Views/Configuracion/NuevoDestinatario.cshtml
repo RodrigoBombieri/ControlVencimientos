@@ -1,0 +1,63 @@
+@model ControlVencimientosP.ViewModels.DestinatarioFormViewModel
+@{
+    ViewData["Title"] = "Nuevo destinatario";
+}
+
+<h1 class="cv-page-title">Nuevo destinatario</h1>
+<p class="cv-page-sub">Quién recibe los avisos por email o WhatsApp.</p>
+
+<div class="cv-form-card">
+    <form asp-controller="Configuracion" asp-action="NuevoDestinatario" method="post" novalidate>
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="cv-form-errors"></div>
+
+        <div class="cv-field">
+            <label asp-for="Nombre">Nombre</label>
+            <input asp-for="Nombre" placeholder="Ej: Seguridad e Higiene" autofocus />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <div class="cv-field-row">
+            <div class="cv-field">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" placeholder="Ej: seguridad@empresa.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="cv-field">
+                <label asp-for="Telefono">Teléfono</label>
+                <input asp-for="Telefono" placeholder="Ej: 11 2222-3333" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="cv-field">
+            <label>Categorías <span class="cv-hint">(sin marcar ninguna = recibe todas)</span></label>
+            @if (Model.CategoriasDisponibles.Count == 0)
+            {
+                <div class="cv-checklist"><div class="cv-checklist-vacio">Todavía no hay categorías activas.</div></div>
+            }
+            else
+            {
+                <div class="cv-checklist">
+                    @foreach (var cat in Model.CategoriasDisponibles)
+                    {
+                        <label>
+                            <input type="checkbox" name="CategoriasSeleccionadas" value="@cat.Value" checked="@cat.Selected" />
+                            @cat.Text
+                        </label>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="cv-form-actions">
+            <a class="cv-btn-ghost" asp-action="Index">Cancelar</a>
+            <button type="submit" class="cv-btn-primary">Guardar</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

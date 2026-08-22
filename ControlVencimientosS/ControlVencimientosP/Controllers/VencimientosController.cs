@@ -13,6 +13,12 @@ public class VencimientosController : Controller
     private static readonly string[] ExtensionesAdjuntoPermitidas = [".pdf", ".jpg", ".jpeg", ".png"];
     private const long TamanioMaximoAdjuntoBytes = 10 * 1024 * 1024;
 
+    // Sin esto, una empresa con miles de vencimientos activos renderiza una
+    // tabla gigante en el navegador. El filtro y el cálculo del semáforo
+    // siguen siendo en memoria (ver ArmadorDeListado): esto solo acota
+    // cuántas filas se mandan a la vista.
+    private const int ItemsPorPagina = 20;
+
     private readonly AppDbContext _db;
     private readonly ITenantProvider _tenant;
     private readonly IWebHostEnvironment _entorno;
@@ -30,7 +36,7 @@ public class VencimientosController : Controller
     private string CarpetaAdjuntos => Path.Combine(_entorno.ContentRootPath, "App_Data", "adjuntos");
 
     [HttpGet]
-    public async Task<IActionResult> Index(string? estado, int? categoriaId, string? q)
+    public async Task<IActionResult> Index(string? estado, int? categoriaId, string? q, int pagina = 1)
     {
         var hoy = await HoyAsync();
 
@@ -61,12 +67,22 @@ public class VencimientosController : Controller
         var todos = ArmadorDeListado.Calcular(filas, hoy);
         var filtrados = ArmadorDeListado.Filtrar(todos, filtroEstado, categoriaId, q);
 
+        // La página pedida se acota contra el total ya filtrado: si el filtro
+        // cambia y la URL todavía apunta a una página que ya no existe, se
+        // muestra la última en vez de una tabla vacía.
+        var totalPaginas = filtrados.Count == 0 ? 1 : (int)Math.Ceiling(filtrados.Count / (double)ItemsPorPagina);
+        var paginaSegura = Math.Clamp(pagina, 1, totalPaginas);
+        var itemsDeLaPagina = ArmadorDeListado.Paginar(filtrados, paginaSegura, ItemsPorPagina);
+
         var model = new ListadoVencimientosViewModel
         {
-            Items = filtrados,
+            Items = itemsDeLaPagina,
             Total = todos.Count,
             Vencidos = todos.Count(i => i.Estado == EstadoSemaforo.Vencido),
             PorVencer = todos.Count(i => i.Estado == EstadoSemaforo.PorVencer),
+            TotalFiltrado = filtrados.Count,
+            PaginaActual = paginaSegura,
+            TotalPaginas = totalPaginas,
             FiltroEstado = filtroEstado,
             FiltroCategoriaId = categoriaId,
             FiltroTexto = q,

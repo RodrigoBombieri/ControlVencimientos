@@ -44,7 +44,14 @@ public class ResumenCalendario
 /// </summary>
 public static class ArmadorDeCalendario
 {
-    public static ResumenCalendario Armar(IEnumerable<FilaCalendario> filas, int anio, int mes, DateOnly hoy)
+    /// <summary>
+    /// El rango de fechas que realmente pinta la grilla de un mes (incluyendo
+    /// el relleno de los meses vecinos hasta completar semanas). Publico a
+    /// proposito: el controller lo usa para acotar la consulta a la base a
+    /// solo estas fechas, en vez de traer todos los vencimientos activos de
+    /// la empresa como antes.
+    /// </summary>
+    public static (DateOnly Inicio, DateOnly Fin) RangoDeGrilla(int anio, int mes)
     {
         var primerDiaMes = new DateOnly(anio, mes, 1);
         var ultimoDiaMes = primerDiaMes.AddMonths(1).AddDays(-1);
@@ -54,6 +61,13 @@ public static class ArmadorDeCalendario
         // asi todas las filas quedan con 7 columnas completas.
         var inicioGrilla = primerDiaMes.AddDays(-DiasDesdeLunes(primerDiaMes.DayOfWeek));
         var finGrilla = ultimoDiaMes.AddDays(DiasHastaDomingo(ultimoDiaMes.DayOfWeek));
+
+        return (inicioGrilla, finGrilla);
+    }
+
+    public static ResumenCalendario Armar(IEnumerable<FilaCalendario> filas, int anio, int mes, DateOnly hoy)
+    {
+        var (inicioGrilla, finGrilla) = RangoDeGrilla(anio, mes);
 
         var itemsPorFecha = filas
             .GroupBy(f => f.FechaVencimiento)

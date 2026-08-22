@@ -1,0 +1,185 @@
+@model ControlVencimientosP.ViewModels.ConfiguracionViewModel
+@{
+    ViewData["Title"] = "Configuración";
+}
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="cv-flash">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+        <div>@mensaje</div>
+    </div>
+}
+
+<h1 class="cv-page-title">Configuración</h1>
+<p class="cv-page-sub">Avisos, destinatarios y categorías</p>
+
+<div class="cv-config-grid">
+    <div class="cv-config-col">
+        <div class="cv-card">
+            <div class="cv-card-head">
+                <div class="cv-card-title">Avisos automáticos</div>
+            </div>
+
+            <form asp-controller="Configuracion" asp-action="EditarAvisos" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="cv-form-errors" style="margin: 14px 18px 0;"></div>
+
+                <div class="cv-cfg-row">
+                    <div>
+                        <div class="cv-cfg-name">Resumen diario por email</div>
+                        <div class="cv-cfg-desc">Un solo email por día con todo lo que vence. Es el modo recomendado: evita la fatiga de alertas.</div>
+                    </div>
+                    <label class="cv-switch">
+                        <input type="checkbox" asp-for="Avisos.DigestActivo" />
+                        <span class="cv-switch-track"></span>
+                    </label>
+                </div>
+
+                <div class="cv-cfg-row">
+                    <div>
+                        <div class="cv-cfg-name">Alerta individual urgente</div>
+                        <div class="cv-cfg-desc">Email aparte cuando falten 7 días o menos, o cuando algo ya esté vencido.</div>
+                    </div>
+                    <label class="cv-switch">
+                        <input type="checkbox" asp-for="Avisos.AlertaIndividualActiva" />
+                        <span class="cv-switch-track"></span>
+                    </label>
+                </div>
+
+                <div class="cv-cfg-row">
+                    <div>
+                        <div class="cv-cfg-name">WhatsApp</div>
+                        <div class="cv-cfg-desc">Requiere número verificado y plantillas aprobadas por Meta. Disponible en el plan Pro.</div>
+                    </div>
+                    <label class="cv-switch">
+                        <input type="checkbox" checked="@Model.Avisos.WhatsappActivo" disabled title="Todavía no disponible" />
+                        <span class="cv-switch-track"></span>
+                    </label>
+                </div>
+
+                <div class="cv-cfg-row">
+                    <div>
+                        <div class="cv-cfg-name">Hitos de aviso</div>
+                        <div class="cv-cfg-desc">Cuántos días antes se avisa. Después del vencimiento se recuerda cada tantos días (abajo). «El día» = el mismo día que vence.</div>
+                    </div>
+                    <div class="cv-pill-list">
+                        @foreach (var dia in ArmadorDeConfiguracion.HitosDisponibles)
+                        {
+                            <label class="cv-pill-check">
+                                <input type="checkbox" name="Avisos.HitosSeleccionados" value="@dia" checked="@Model.Avisos.HitosSeleccionados.Contains(dia)" />
+                                <span>@(dia == 0 ? "El día" : $"{dia} d")</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+                <span asp-validation-for="Avisos.HitosSeleccionados" class="text-danger" style="display:block;text-align:right;margin:-8px 18px 0;"></span>
+
+                <div class="cv-cfg-row">
+                    <div>
+                        <div class="cv-cfg-name">Recordar lo vencido cada</div>
+                        <div class="cv-cfg-desc">Días entre cada recordatorio de algo que ya venció.</div>
+                    </div>
+                    <div class="cv-cfg-field">
+                        <input asp-for="Avisos.ReenviarVencidosCadaDias" type="number" min="0" max="365" />
+                        <span asp-validation-for="Avisos.ReenviarVencidosCadaDias" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="cv-cfg-row">
+                    <div>
+                        <div class="cv-cfg-name">Hora de envío</div>
+                        <div class="cv-cfg-desc">Zona horaria de la empresa.</div>
+                    </div>
+                    <div class="cv-cfg-field">
+                        <input asp-for="Avisos.HoraEnvio" type="time" />
+                        <span asp-validation-for="Avisos.HoraEnvio" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="cv-form-actions" style="padding: 14px 18px;">
+                    <button type="submit" class="cv-btn-primary">Guardar avisos</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="cv-card">
+            <div class="cv-card-head">
+                <div class="cv-card-title">Destinatarios</div>
+                <div class="cv-spacer"></div>
+                <a class="cv-btn-ghost" asp-action="NuevoDestinatario">+ Agregar</a>
+            </div>
+
+            @if (Model.Destinatarios.Count == 0)
+            {
+                <div class="cv-empty">Todavía no cargaste destinatarios.</div>
+            }
+            else
+            {
+                @foreach (var d in Model.Destinatarios)
+                {
+                    <div class="cv-cfg-row">
+                        <div>
+                            <div class="cv-cfg-name">@d.Nombre</div>
+                            <div class="cv-cfg-desc">@d.Contacto · @d.CategoriasResumen</div>
+                        </div>
+                        <div class="cv-cfg-actions">
+                            @if (d.Activo)
+                            {
+                                <span class="cv-badge cv-b-good">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                                    Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="cv-badge cv-b-crit">Inactivo</span>
+                            }
+                            <a class="cv-btn-ghost" asp-action="EditarDestinatario" asp-route-id="@d.Id">Editar</a>
+                            <form asp-action="ToggleDestinatario" asp-route-id="@d.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="cv-btn-ghost">@(d.Activo ? "Desactivar" : "Activar")</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="cv-card">
+        <div class="cv-card-head">
+            <div class="cv-card-title">Categorías</div>
+            <div class="cv-spacer"></div>
+            <a class="cv-btn-ghost" asp-action="NuevaCategoria">+ Nueva</a>
+        </div>
+
+        @if (Model.Categorias.Count == 0)
+        {
+            <div class="cv-empty">Todavía no hay categorías.</div>
+        }
+        else
+        {
+            @foreach (var c in Model.Categorias)
+            {
+                <div class="cv-cfg-row">
+                    <div>
+                        <div class="cv-cfg-name">@c.Nombre@(c.Activa ? "" : " (inactiva)")</div>
+                        <div class="cv-cfg-desc">@c.CantidadItems @(c.CantidadItems == 1 ? "ítem" : "ítems") · aviso @c.DiasAvisoDefault días antes</div>
+                    </div>
+                    <div class="cv-cfg-actions">
+                        <a class="cv-btn-ghost" asp-action="EditarCategoria" asp-route-id="@c.Id">Editar</a>
+                        <form asp-action="ToggleCategoria" asp-route-id="@c.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="cv-btn-ghost">@(c.Activa ? "Desactivar" : "Activar")</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

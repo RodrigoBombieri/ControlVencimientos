@@ -50,6 +50,10 @@
         <div class="cv-tile-head"><span class="cv-dot"></span><span class="cv-tile-label">Vencido</span></div>
         <div class="cv-tile-value">@Model.Vencidos</div>
     </div>
+    <div class="cv-tile cv-t-renew">
+        <div class="cv-tile-head"><span class="cv-dot"></span><span class="cv-tile-label">Renovados este mes</span></div>
+        <div class="cv-tile-value">@Model.RenovadosEsteMes</div>
+    </div>
 </div>
 
 <div class="cv-dash-grid">
@@ -103,6 +107,14 @@
                     }
                 </tbody>
             </table>
+
+            @if (Model.TotalActivos > Model.Proximos.Count)
+            {
+                <div class="cv-table-footer">
+                    <span>Mostrando @Model.Proximos.Count de @Model.TotalActivos ítems</span>
+                    <a class="cv-btn-ghost" asp-controller="Vencimientos" asp-action="Index">Ver todos</a>
+                </div>
+            }
         }
     </div>
 

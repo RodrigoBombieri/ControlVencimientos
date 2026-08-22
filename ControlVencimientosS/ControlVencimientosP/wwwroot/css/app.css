@@ -29,6 +29,7 @@
   --cv-good:            #0ca30c;
   --cv-warning:         #fab219;
   --cv-critical:        #d03b3b;
+  --cv-renew:           #7c5cff;
   --cv-good-wash:       #eaf7ea;
   --cv-warning-wash:    #fdf3dd;
   --cv-critical-wash:   #fbeaea;
@@ -50,6 +51,7 @@
     --cv-sidebar-ink:     #e8e7e0;
     --cv-sidebar-muted:   #7d7b74;
     --cv-accent:          #3987e5;
+    --cv-renew:           #9b82ff;
     --cv-good-wash:       rgba(12,163,12,.14);
     --cv-warning-wash:    rgba(250,178,25,.14);
     --cv-critical-wash:   rgba(208,59,59,.16);
@@ -191,6 +193,7 @@ body:has(.cv-app) {
 .cv-t-good { --cv-tono: var(--cv-good); }
 .cv-t-warn { --cv-tono: var(--cv-warning); }
 .cv-t-crit { --cv-tono: var(--cv-critical); }
+.cv-t-renew { --cv-tono: var(--cv-renew); }
 
 /* ---------- Tarjetas ---------- */
 .cv-card {
@@ -369,6 +372,21 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 .cv-table-actions { text-align: right; white-space: nowrap; }
 .cv-table-actions .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }
 
+.cv-table-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 18px; border-top: 1px solid var(--cv-border);
+  font-size: 12.5px; color: var(--cv-text-muted);
+}
+.cv-table-footer .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }
+
+.cv-pagination {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 18px; border-top: 1px solid var(--cv-border);
+  font-size: 12.5px; color: var(--cv-text-muted);
+}
+.cv-pagination-nav { display: flex; gap: 8px; }
+.cv-pagination-nav .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }
+
 /* ---------- Calendario ---------- */
 .cv-calendario { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .cv-calendario thead th {
@@ -434,3 +452,59 @@ html[data-theme="dark"] .cv-b-warn svg { color: var(--cv-warning); }
 .cv-aviso-mail-items li { font-size: 12.5px; color: var(--cv-text-secondary); line-height: 1.4; }
 .cv-aviso-mail-mas { font-size: 12px; color: var(--cv-text-muted); margin-top: 7px; }
 .cv-aviso-cta { align-self: flex-start; }
+
+/* ---------- Configuración: layout de dos columnas ---------- */
+.cv-config-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 18px; align-items: start; }
+.cv-config-col { display: flex; flex-direction: column; gap: 18px; }
+@media (max-width: 1080px) { .cv-config-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Configuración: filas de ajuste (switch, pill, texto) ---------- */
+.cv-cfg-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 18px; border-bottom: 1px solid var(--cv-grid);
+}
+.cv-cfg-row:last-child { border-bottom: 0; }
+.cv-cfg-name { font-size: 13.5px; font-weight: 550; }
+.cv-cfg-desc { font-size: 12.5px; color: var(--cv-text-muted); margin-top: 2px; max-width: 46ch; }
+.cv-cfg-field { flex-shrink: 0; width: 220px; }
+.cv-cfg-field input { width: 100%; box-sizing: border-box; }
+
+/* Switch on/off, sin JavaScript: checkbox nativo escondido + track pintado
+   con :checked del sibling. asp-for ya emite el hidden input que garantiza
+   que un switch "apagado" postee false en vez de no postear nada. */
+.cv-switch { position: relative; display: inline-block; width: 40px; height: 23px; flex-shrink: 0; cursor: pointer; }
+.cv-switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.cv-switch-track { position: absolute; inset: 0; background: var(--cv-baseline); border-radius: 20px; transition: background .15s; pointer-events: none; }
+.cv-switch-track::after { content: ""; position: absolute; top: 2.5px; left: 2.5px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s; }
+.cv-switch input:checked + .cv-switch-track { background: var(--cv-accent); }
+.cv-switch input:checked + .cv-switch-track::after { left: 20px; }
+.cv-switch input:focus-visible + .cv-switch-track { outline: 2px solid var(--cv-accent); outline-offset: 2px; }
+.cv-switch input:disabled { cursor: not-allowed; }
+.cv-switch input:disabled + .cv-switch-track { opacity: .5; }
+
+/* Hitos de aviso: checkbox oculto + <span> con pinta de pill que cambia con
+   :checked del sibling. Mismo mecanismo sin JS que .cv-switch. */
+.cv-pill-list { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; max-width: 360px; }
+.cv-pill-check { position: relative; cursor: pointer; }
+.cv-pill-check input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.cv-pill-check span {
+  display: inline-flex; align-items: center; height: 26px; padding: 0 10px;
+  border: 1px solid var(--cv-border); border-radius: 7px; background: var(--cv-plane);
+  color: var(--cv-text-secondary); font-size: 12.5px; font-variant-numeric: tabular-nums;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.cv-pill-check input:checked + span { background: var(--cv-accent); border-color: var(--cv-accent); color: #fff; }
+.cv-pill-check input:focus-visible + span { outline: 2px solid var(--cv-accent); outline-offset: 2px; }
+
+/* ---------- Configuración: destinatarios y categorías ---------- */
+.cv-cfg-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.cv-cfg-actions .cv-btn-ghost { padding: 6px 12px; font-size: 12.5px; }
+.cv-cfg-actions form { margin: 0; }
+
+.cv-checklist {
+  display: flex; flex-direction: column; gap: 9px; max-height: 240px; overflow-y: auto;
+  border: 1px solid var(--cv-border); border-radius: 9px; padding: 12px 14px; background: var(--cv-plane);
+}
+.cv-checklist-vacio { font-size: 12.5px; color: var(--cv-text-muted); }
+.cv-checklist label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.cv-checklist input { margin: 0; }

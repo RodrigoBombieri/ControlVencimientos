@@ -14,6 +14,12 @@ public class ListadoVencimientosViewModel
     public int Vencidos { get; init; }
     public int PorVencer { get; init; }
 
+    // Estos tres son sobre el resultado YA filtrado: la base para la
+    // paginación, a diferencia de Total (que ignora el filtro de estado).
+    public int TotalFiltrado { get; init; }
+    public int PaginaActual { get; init; } = 1;
+    public int TotalPaginas { get; init; } = 1;
+
     public EstadoSemaforo? FiltroEstado { get; init; }
     public int? FiltroCategoriaId { get; init; }
     public string? FiltroTexto { get; init; }

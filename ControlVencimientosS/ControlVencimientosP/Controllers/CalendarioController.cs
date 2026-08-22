@@ -26,12 +26,15 @@ public class CalendarioController : Controller
             : new DateOnly(hoy.Year, hoy.Month, 1);
 
         // El query filter global de AppDbContext ya restringe esto a la
-        // empresa actual. Se trae TODO lo activo, sin acotar por rango de
-        // fechas: mismo criterio que el dashboard y el listado — para una
-        // pyme no vale la pena la complejidad extra de filtrar por mes en
-        // la consulta.
+        // empresa actual. A diferencia del dashboard y el listado (que
+        // necesitan TODOS los activos para calcular totales), acá solo hace
+        // falta lo que cae dentro de la grilla del mes visible: se acota la
+        // consulta a ese rango en vez de traer toda la tabla.
+        var (inicioGrilla, finGrilla) = ArmadorDeCalendario.RangoDeGrilla(mesVisible.Year, mesVisible.Month);
+
         var filas = await _db.Vencimientos
             .Activos()
+            .Where(v => v.FechaVencimiento >= inicioGrilla && v.FechaVencimiento <= finGrilla)
             .Select(v => new FilaCalendario(
                 v.Id,
                 v.ItemId,

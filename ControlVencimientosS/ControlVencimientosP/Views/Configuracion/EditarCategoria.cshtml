@@ -1,0 +1,36 @@
+@model ControlVencimientosP.ViewModels.CategoriaViewModel
+@{
+    ViewData["Title"] = "Editar categoría";
+}
+
+<h1 class="cv-page-title">Editar categoría</h1>
+
+<div class="cv-form-card">
+    <form asp-controller="Configuracion" asp-action="EditarCategoria" method="post" novalidate>
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="cv-form-errors"></div>
+
+        <div class="cv-field">
+            <label asp-for="Nombre">Nombre</label>
+            <input asp-for="Nombre" autofocus />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <div class="cv-field">
+            <label asp-for="DiasAvisoDefault">Aviso (días antes)</label>
+            <input asp-for="DiasAvisoDefault" type="number" min="0" max="365" />
+            <span asp-validation-for="DiasAvisoDefault" class="text-danger"></span>
+            <div class="cv-hint" style="margin-top: 4px;">Cada vencimiento puede pisar este valor individualmente.</div>
+        </div>
+
+        <div class="cv-form-actions">
+            <a class="cv-btn-ghost" asp-action="Index">Cancelar</a>
+            <button type="submit" class="cv-btn-primary">Guardar</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
