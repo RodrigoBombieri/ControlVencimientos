@@ -3,10 +3,15 @@ name: .NET CI
 
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ControlVencimientosS
 
     steps:
       - name: Obtener código
@@ -15,13 +20,13 @@ jobs:
       - name: Configurar .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.4x'
+          dotnet-version: '10.0.x'
 
       - name: Restaurar dependencias
-        run: dotnet restore
+        run: dotnet restore ControlVencimientosS.slnx
 
       - name: Compilar solución
-        run: dotnet build --no-restore
+        run: dotnet build ControlVencimientosS.slnx --no-restore
 
       - name: Ejecutar tests
-        run: dotnet test --no-build
+        run: dotnet test ControlVencimientosS.slnx --no-restore
