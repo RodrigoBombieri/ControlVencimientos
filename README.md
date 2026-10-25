@@ -52,7 +52,3 @@ El aislamiento multiempresa se resuelve con un `EmpresaId` en cada entidad y que
 4. *(Opcional)* Cargar datos de ejemplo corriendo `Data/Seed_DatosDeEjemplo.sql` a mano contra la base.
 5. *(Opcional)* Para probar el envío real de avisos por email, cargar credenciales SMTP propias con `dotnet user-secrets set "Smtp:Host" "..."` (y `Smtp:Usuario`, `Smtp:Password`, `Smtp:RemitenteEmail`) — sin esto, la app funciona igual, simplemente no llegan a enviarse los mails.
 6. Ejecutar el proyecto (`F5`).
-
-## Estado
-
-Proyecto de portfolio en desarrollo activo, sin datos reales cargados todavía.
