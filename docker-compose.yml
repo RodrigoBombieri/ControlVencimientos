@@ -1,0 +1,44 @@
+# Ubicación: raíz del repositorio (junto al Dockerfile)
+# Levantar todo:  docker compose up --build
+# App:            http://localhost:8080
+# Apagar:         docker compose down        (agregar -v para borrar también los datos)
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+    ports:
+      - "1433:1433"          # opcional: para conectarte desde SSMS / Azure Data Studio
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy     # la app arranca recién cuando SQL Server responde
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      # VERIFICAR: el nombre de la cadena en appsettings.json ("DefaultConnection" es el más común)
+      ConnectionStrings__DefaultConnection: "Server=db;Database=ControlVencimientos;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True"
+      # Opcionales: sin estas variables la app funciona, solo que no envía mails
+      Smtp__Host: ${SMTP_HOST:-}
+      Smtp__Usuario: ${SMTP_USUARIO:-}
+      Smtp__Password: ${SMTP_PASSWORD:-}
+      Smtp__RemitenteEmail: ${SMTP_REMITENTE:-}
+    volumes:
+      - appdata:/app/data
+
+volumes:
+  sqldata:
+  appdata:

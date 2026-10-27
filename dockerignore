@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.git/
+**/*.user
+**/appsettings.Development.json
+.env
+docs/
+README.md
