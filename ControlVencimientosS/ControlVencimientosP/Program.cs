@@ -117,6 +117,13 @@ builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
+// 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 // Roles y primer administrador. Es idempotente: si ya existen, no hace nada.
 await SeedIdentidad.AplicarAsync(app.Services);
 

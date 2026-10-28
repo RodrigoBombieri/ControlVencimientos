@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Ruta al .csproj del proyecto web (el que tiene Program.cs)
-ARG PROJECT=ControlVencimientosS\ControlVencimientosP\ControlVencimientosP.csproj
+ARG PROJECT=ControlVencimientosS/ControlVencimientosP/ControlVencimientosP.csproj
 
 COPY ControlVencimientosS/ ControlVencimientosS/
 RUN dotnet restore "$PROJECT"
